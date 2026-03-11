@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global styles */
+html, body {
+  scroll-behavior: smooth;
+}
+
+a {
+  @apply text-primary hover:text-secondary;
+}
+
+body {
+  @apply bg-sand text-ink;
+}
+
+.bg-noise {
+  background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.glass {
+  @apply bg-white/80 backdrop-blur-md border border-slateSoft shadow-soft;
+}
+
+.double-bg {
+  @apply bg-white/90 backdrop-blur-md border border-slateSoft shadow-soft;
+}
+
+/* Ensure readable text on blue backgrounds */
+.bg-primary,
+.bg-primary-light,
+.bg-primary-dark,
+[class*="bg-blue-"] {
+  color: #ffffff;
+}
+
+.bg-primary a,
+.bg-primary-light a,
+.bg-primary-dark a,
+[class*="bg-blue-"] a {
+  color: #ffffff;
+}
+
+.btn {
+  @apply inline-flex items-center px-4 py-2 rounded-lg font-semibold transition duration-200;
+}
+
+.btn-primary {
+  @apply bg-primary text-white hover:bg-primary-light;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-white hover:bg-secondary-dark;
+}
