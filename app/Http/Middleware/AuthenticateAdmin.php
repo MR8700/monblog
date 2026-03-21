@@ -3,23 +3,27 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
+use Illuminate\Http\Request;
 
-class Authenticate extends Middleware
+class AuthenticateAdmin extends Middleware
 {
     /**
-     * Redirige l'utilisateur non authentifié.
+     * Force le guard admin pour ce middleware.
      */
-    protected function redirectTo($request)
+    protected function authenticate($request, array $guards): void
+    {
+        parent::authenticate($request, ['admin']);
+    }
+
+    /**
+     * Redirige l'utilisateur non authentifie.
+     */
+    protected function redirectTo(Request $request): ?string
     {
         if (! $request->expectsJson()) {
-
-            // Si l'utilisateur essaie d'accéder à une route admin
-            if ($request->is('admin') || $request->is('admin/*')) {
-                return route('admin.login');
-            }
-
-            // Sinon, route normale
-            return route('home');
+            return route('admin.login');
         }
+
+        return null;
     }
 }

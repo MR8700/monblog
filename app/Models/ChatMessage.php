@@ -17,4 +17,9 @@ class ChatMessage extends Model
     {
         return $this->hasMany(ChatAttachment::class);
     }
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class)->nullable();
+    }
 }

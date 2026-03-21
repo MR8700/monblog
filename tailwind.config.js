@@ -17,29 +17,49 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#0f172a',
-          light: '#1e293b',
-          dark: '#0b1220',
+          DEFAULT: '#0066cc', // Bleu principal
+          light: '#3385ff',
+          dark: '#004999',
+          50: '#f0f7ff',
+          100: '#e0eeff',
+          200: '#c1e0ff',
+          300: '#a0cfff',
+          400: '#80bdff',
+          500: '#0066cc',
+          600: '#0052a3',
+          700: '#003d7a',
+          800: '#002851',
+          900: '#001328',
         },
         secondary: {
-          DEFAULT: '#f97316',
-          light: '#fb923c',
-          dark: '#ea580c',
+          DEFAULT: '#ff6b35', // Orange accent
+          light: '#ff8c61',
+          dark: '#cc5629',
         },
         accent: {
-          DEFAULT: '#06b6d4',
+          DEFAULT: '#06b6d4', // Cyan
           light: '#22d3ee',
           dark: '#0891b2',
         },
         success: {
-          DEFAULT: '#22c55e',
-          light: '#4ade80',
-          dark: '#16a34a',
+          DEFAULT: '#10b981',
+          light: '#6ee7b7',
+          dark: '#047857',
         },
         danger: {
           DEFAULT: '#ef4444',
           light: '#f87171',
           dark: '#dc2626',
+        },
+        warning: {
+          DEFAULT: '#f59e0b',
+          light: '#fcd34d',
+          dark: '#d97706',
+        },
+        info: {
+          DEFAULT: '#3b82f6',
+          light: '#93c5fd',
+          dark: '#1d4ed8',
         },
         ink: '#0f172a',
         sand: '#f8fafc',

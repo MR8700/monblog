@@ -26,4 +26,9 @@ class PortfolioItem extends Model
         'is_current' => 'boolean',
         'featured' => 'boolean',
     ];
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class);
+    }
 }
