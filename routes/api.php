@@ -28,6 +28,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/chat/messages', [ChatApiController::class, 'index']);
     Route::post('/chat/messages', [ChatApiController::class, 'store'])->middleware('throttle:20,1');
 
+    // LigdiCash Callback
+    Route::post('/payments/ligdicash/callback', [App\Http\Controllers\LigdiCashController::class, 'callback'])->name('api.payments.ligdicash.callback');
+
     // Admin protected endpoints
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         // Posts management

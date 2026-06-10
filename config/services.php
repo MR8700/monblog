@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'ligdicash' => [
+        'base_url' => env('LIGDICASH_BASE_URL', 'https://app.ligdicash.com'),
+        'api_key' => env('LIGDICASH_API_KEY'),
+        'api_token' => env('LIGDICASH_API_TOKEN'),
+        'callback_url' => env('LIGDICASH_CALLBACK_URL'),
+    ],
+
 ];

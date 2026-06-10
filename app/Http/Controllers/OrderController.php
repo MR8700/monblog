@@ -126,9 +126,14 @@ class OrderController extends Controller
      */
     public function initiatePayment(Request $request, Order $order, \App\Services\Payment\PaymentGateway $gateway)
     {
-        $request->validate(['payment_method' => 'required|in:orange_money,visa']);
+        $request->validate(['payment_method' => 'required|in:orange_money,visa,ligdicash']);
         
         $method = $request->payment_method;
+
+        if ($method === 'ligdicash') {
+            return redirect()->route('payments.ligdicash.initiate', $order);
+        }
+
         $order->update(['payment_method' => $method]);
 
         $provider = $gateway->getProvider($method);

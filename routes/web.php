@@ -58,6 +58,14 @@ Route::post('/orders/{order}/payment/process', [OrderController::class, 'process
 Route::get('/orders/{order}/confirmation', [OrderController::class, 'confirmation'])->name('orders.confirmation');
 Route::get('/orders/{order}/download/{product}', [OrderController::class, 'download'])->middleware('signed')->name('orders.download');
 
+// LigdiCash Routes
+Route::prefix('payments/ligdicash')->name('payments.ligdicash.')->group(function() {
+    Route::get('/initiate/{order}', [App\Http\Controllers\LigdiCashController::class, 'initiate'])->name('initiate');
+    Route::get('/success/{order}', [App\Http\Controllers\LigdiCashController::class, 'success'])->name('success');
+    Route::get('/cancel/{order}', [App\Http\Controllers\LigdiCashController::class, 'cancel'])->name('cancel');
+    Route::get('/status/{order}', [App\Http\Controllers\LigdiCashController::class, 'checkStatus'])->name('status');
+});
+
 
 /*
 |--------------------------------------------------------------------------

@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   @vite(['resources/css/app.css', 'resources/js/app.js'])
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>[x-cloak] { display: none !important; }</style>
 </head>
 
 <body class="bg-[#FBFDFF] text-slate-900 font-sans min-h-screen flex flex-col" x-data="{ mobileMenuOpen: false }">
@@ -20,13 +21,13 @@
   <!-- Navigation Bar Premium -->
   <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100 transition-all duration-300" 
        :class="{ 'py-2 shadow-sm': window.scrollY > 20, 'py-4': window.scrollY <= 20 }">
-    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
       <!-- Logo -->
-      <a href="{{ route('home') }}" class="flex items-center gap-3 group">
-        <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-xl shadow-primary/20 group-hover:rotate-6 transition-transform">
+      <a href="{{ route('home') }}" class="flex items-center gap-2 sm:gap-3 group">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-xl shadow-primary/20 group-hover:rotate-6 transition-transform">
           <i class="fas fa-cube text-white" style="color: white !important; display: inline-block !important;"></i>
         </div>
-        <span class="text-xl font-bold tracking-tight text-slate-900">Digital<span class="text-primary">Space</span></span>
+        <span class="text-lg sm:text-xl font-bold tracking-tight text-slate-900">Digital<span class="text-primary">Space</span></span>
       </a>
 
       <!-- Desktop Navigation -->
@@ -97,6 +98,28 @@
         @endif
       </div>
 
+      <!-- Mobile Menu Button -->
+      <button 
+        @click="mobileMenuOpen = !mobileMenuOpen" 
+        class="md:hidden w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 text-slate-600 hover:text-primary hover:bg-primary/5 transition-all"
+        :class="{ 'bg-primary/10 text-primary border-primary/20': mobileMenuOpen }"
+      >
+        <div class="relative w-6 h-5">
+          <span 
+            class="absolute left-0 block w-6 h-0.5 bg-current rounded-full transition-all duration-300"
+            :class="{ 'top-2 rotate-45': mobileMenuOpen, 'top-0': !mobileMenuOpen }"
+          ></span>
+          <span 
+            class="absolute left-0 top-2 block w-6 h-0.5 bg-current rounded-full transition-all duration-300"
+            :class="{ 'opacity-0 translate-x-4': mobileMenuOpen, 'opacity-100': !mobileMenuOpen }"
+          ></span>
+          <span 
+            class="absolute left-0 block w-6 h-0.5 bg-current rounded-full transition-all duration-300"
+            :class="{ 'top-2 -rotate-45': mobileMenuOpen, 'top-4': !mobileMenuOpen }"
+          ></span>
+        </div>
+      </button>
+
   <style>
     .nav-link {
       @apply px-5 py-2.5 rounded-full text-[13px] font-bold text-slate-600 hover:text-primary hover:bg-primary/5 transition-all duration-300 flex items-center;
@@ -118,8 +141,14 @@
     <!-- Mobile Drawer Menu -->
     <div 
       x-show="mobileMenuOpen"
-      x-transition
-      class="md:hidden bg-white/95 backdrop-blur border-t border-primary-100/30"
+      x-cloak
+      x-transition:enter="transition ease-out duration-300"
+      x-transition:enter-start="opacity-0 -translate-y-4"
+      x-transition:enter-end="opacity-100 translate-y-0"
+      x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100 translate-y-0"
+      x-transition:leave-end="opacity-0 -translate-y-4"
+      class="md:hidden bg-white/95 backdrop-blur border-t border-slate-100 shadow-2xl"
     >
       <div class="max-w-7xl mx-auto px-6 py-4 space-y-2 flex flex-col">
         @if(Auth::guard('admin')->check())
@@ -276,25 +305,25 @@
         <div class="absolute inset-0 opacity-[0.02]" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 40px 40px;"></div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-6 relative z-10">
-        <div class="grid gap-16 md:grid-cols-4 mb-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        <div class="grid gap-12 sm:gap-16 md:grid-cols-4 mb-20">
             <!-- Brand & Mission -->
             <div class="md:col-span-2 space-y-8">
-                <a href="{{ route('home') }}" class="inline-flex items-center gap-4 group">
-                    <div class="w-14 h-14 bg-gradient-to-br from-primary to-primary-dark rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-primary/20 group-hover:rotate-6 transition-all duration-500">
-                        <i class="fas fa-cube text-2xl"></i>
+                <a href="{{ route('home') }}" class="inline-flex items-center gap-3 sm:gap-4 group">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-primary to-primary-dark rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-primary/20 group-hover:rotate-6 transition-all duration-500">
+                        <i class="fas fa-cube text-xl sm:text-2xl"></i>
                     </div>
                     <div>
-                        <span class="text-2xl font-bold tracking-tight block">Digital<span class="text-primary">Space</span></span>
-                        <span class="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">Premium Digital Agency</span>
+                        <span class="text-xl sm:text-2xl font-bold tracking-tight block">Digital<span class="text-primary">Space</span></span>
+                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">Premium Digital Agency</span>
                     </div>
                 </a>
                 
-                <p class="text-slate-300 text-lg leading-relaxed max-w-md">
+                <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-md">
                     Façonner le futur numérique avec <span class="text-white font-semibold">audace</span> et <span class="text-white font-semibold">précision</span>. Nous créons des expériences qui ne se contentent pas de connecter, elles convertissent.
                 </p>
 
-                <div class="flex gap-4">
+                <div class="flex flex-wrap gap-3 sm:gap-4">
                     <a href="#" aria-label="Facebook" class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary hover:border-primary hover:-translate-y-1 transition-all duration-300 group">
                         <i class="fab fa-facebook-f text-slate-400 group-hover:text-white transition-colors"></i>
                     </a>
@@ -344,9 +373,9 @@
         </div>
 
         <!-- Bottom Bar -->
-        <div class="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+        <div class="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
             <div class="flex flex-col md:flex-row items-center gap-4 md:gap-8">
-                <div class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                <div class="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
                     © {{ date('Y') }} <span class="text-slate-300">DigitalSpace</span>. Propulsion Numérique.
                 </div>
                 @unless(Auth::guard('admin')->check())
