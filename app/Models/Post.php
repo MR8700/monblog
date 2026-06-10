@@ -7,6 +7,7 @@ use App\Enums\PostVisibility;
 use App\Traits\Filterable;
 use App\Traits\HasReadingTime;
 use App\Traits\HasSlug;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Post extends Model
 {
-    use HasSlug, HasReadingTime, Filterable;
+    use HasSlug, HasReadingTime, Filterable, HasFactory;
 
     protected $fillable = [
         'admin_id',
@@ -31,6 +32,8 @@ class Post extends Model
         'archived_at',
         'views_count',
         'reading_time',
+        'price',
+        'is_premium',
         'featured',
         'meta_keywords',
         'meta_description',
@@ -40,6 +43,7 @@ class Post extends Model
         'status' => PostStatus::class,
         'visibility' => PostVisibility::class,
         'featured' => 'boolean',
+        'is_premium' => 'boolean',
         'published_at' => 'datetime',
         'scheduled_at' => 'datetime',
         'archived_at' => 'datetime',

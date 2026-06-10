@@ -54,6 +54,8 @@ class BlogPostRequest extends FormRequest
             'published_at' => 'nullable|date_format:Y-m-d H:i:s',
             'scheduled_at' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:now',
             'featured' => 'nullable|boolean',
+            'is_premium' => 'nullable|boolean',
+            'price' => 'nullable|numeric|min:0',
             'meta_keywords' => 'nullable|string|max:160',
             'meta_description' => 'nullable|string|max:160',
             'medias' => 'nullable|array|max:20',
@@ -109,6 +111,7 @@ class BlogPostRequest extends FormRequest
     {
         $this->merge([
             'featured' => $this->boolean('featured'),
+            'is_premium' => $this->boolean('is_premium'),
         ]);
     }
 }

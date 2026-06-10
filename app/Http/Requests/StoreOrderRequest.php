@@ -18,7 +18,8 @@ class StoreOrderRequest extends FormRequest
             'user_email' => 'required|email',
             'user_phone' => 'required|string|min:7|max:20',
             'products' => 'required|array|min:1',
-            'products.*.id' => 'required|exists:products,id',
+            'products.*.id' => 'required|integer',
+            'products.*.type' => 'nullable|string|in:product,post',
             'products.*.quantity' => 'required|integer|min:1|max:1000',
         ];
     }

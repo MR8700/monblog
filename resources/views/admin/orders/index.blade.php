@@ -6,16 +6,37 @@
 <section class="max-w-6xl mx-auto px-6 py-12">
   <div class="flex items-center justify-between mb-8">
     <h1 class="text-3xl font-heading">Commandes</h1>
-    <div class="flex gap-2">
-      <select id="statusFilter" class="px-4 py-2 rounded-lg border border-primary text-sm font-medium">
-        <option value="">Tous les statuts</option>
-        <option value="pending">En attente</option>
-        <option value="confirmed">Confirmée</option>
-        <option value="processing">En cours</option>
-        <option value="completed">Complétée</option>
-        <option value="cancelled">Annulée</option>
-      </select>
-    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="glass p-6 rounded-3xl mb-8">
+    <form action="{{ url()->current() }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-2 relative">
+            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Client, Email, Réf..." class="w-full pl-12 pr-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-medium">
+        </div>
+        <div>
+            <select name="status" class="w-full px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-700">
+                <option value="">Tous les statuts</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>En attente</option>
+                <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmée</option>
+                <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>En cours</option>
+                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Complétée</option>
+                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Annulée</option>
+            </select>
+        </div>
+        <div class="flex gap-2">
+            <select name="payment_status" class="flex-1 px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-700">
+                <option value="">Paiement</option>
+                <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Payé</option>
+                <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Non payé</option>
+                <option value="failed" {{ request('payment_status') == 'failed' ? 'selected' : '' }}>Échoué</option>
+            </select>
+            <button type="submit" class="px-6 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-primary transition-all shadow-lg">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+    </form>
   </div>
 
   <!-- Stats Cards -->
@@ -61,13 +82,13 @@
             <td class="px-6 py-4">
               <div>
                 <p class="font-semibold">#{{ $order->id }}</p>
-                <p class="text-xs text-slate-600">{{ $order->customer_name }}</p>
-                <p class="text-xs text-slate-500">{{ $order->customer_email }}</p>
+                <p class="text-xs text-slate-600">{{ $order->user_name }}</p>
+                <p class="text-xs text-slate-500">{{ $order->user_email }}</p>
               </div>
             </td>
             <td class="px-6 py-4">
-              <p class="font-medium">{{ $order->order_items_count ?? $order->orderItems->count() }} article(s)</p>
-              <p class="text-xs text-slate-600">{{ $order->total_amount ?? $order->order_items->sum('quantity') }} unité(s)</p>
+              <p class="font-medium">{{ $order->items_count ?? $order->items->count() }} article(s)</p>
+              <p class="text-xs text-slate-600">{{ $order->total_amount ?? $order->items->sum('quantity') }} unité(s)</p>
             </td>
             <td class="px-6 py-4">
               <p class="font-semibold text-lg">{{ number_format($order->total_price, 2) }}€</p>
@@ -113,25 +134,4 @@
   </div>
 </section>
 
-@push('scripts')
-<script>
-document.getElementById('statusFilter').addEventListener('change', function() {
-  const status = this.value;
-  const url = new URL(window.location);
-  if (status) {
-    url.searchParams.set('status', status);
-  } else {
-    url.searchParams.delete('status');
-  }
-  window.location = url.toString();
-});
-
-// Auto-filter if status param exists
-const urlParams = new URLSearchParams(window.location.search);
-const status = urlParams.get('status');
-if (status) {
-  document.getElementById('statusFilter').value = status;
-}
-</script>
-@endpush
 @endsection

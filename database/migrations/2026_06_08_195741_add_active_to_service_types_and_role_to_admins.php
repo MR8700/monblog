@@ -1,0 +1,37 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('service_types', function (Blueprint $table) {
+            $table->boolean('is_active')->default(true)->after('name');
+        });
+
+        Schema::table('admins', function (Blueprint $table) {
+            $table->string('role')->default('admin')->after('password'); // admin, super_admin
+            $table->boolean('is_suspended')->default(false)->after('role');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('service_types', function (Blueprint $table) {
+            $table->dropColumn('is_active');
+        });
+
+        Schema::table('admins', function (Blueprint $table) {
+            $table->dropColumn(['role', 'is_suspended']);
+        });
+    }
+};

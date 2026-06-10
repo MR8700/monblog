@@ -11,11 +11,11 @@ class PostReactionController extends Controller
 {
     public function toggle(Request $request, Post $post)
     {
-        if (! $post->published) {
+        if (! $post->is_published && ! auth()->guard('admin')->check()) {
             abort(404, 'Article non disponible');
         }
 
-        $visitorId = $request->cookie('visitor_id') ?: (string) Str::uuid();
+        $visitorId = $this->getVisitorId($request);
 
         $reaction = PostReaction::where('post_id', $post->id)
             ->where('type', 'like')
@@ -26,12 +26,17 @@ class PostReactionController extends Controller
             $reaction->delete();
             $reacted = false;
         } else {
-            PostReaction::create([
-                'post_id' => $post->id,
-                'type' => 'like',
-                'visitor_id' => $visitorId,
-            ]);
-            $reacted = true;
+            try {
+                PostReaction::create([
+                    'post_id' => $post->id,
+                    'type' => 'like',
+                    'visitor_id' => $visitorId,
+                ]);
+                $reacted = true;
+            } catch (\Exception $e) {
+                // Probablement une violation de contrainte unique, on considère que c'est déjà liké
+                $reacted = false;
+            }
         }
 
         $count = PostReaction::where('post_id', $post->id)
@@ -43,10 +48,25 @@ class PostReactionController extends Controller
             'count' => $count,
         ]);
 
-        if (! $request->cookie('visitor_id')) {
-            $response->cookie('visitor_id', $visitorId, 60 * 24 * 365);
+        // On rafraîchit le cookie pour qu'il dure plus longtemps
+        return $response->cookie('visitor_id', $visitorId, 60 * 24 * 365);
+    }
+
+    /**
+     * Identifie le visiteur de manière plus robuste (Cookie + IP + User Agent)
+     */
+    private function getVisitorId(Request $request): string
+    {
+        if (auth()->check()) {
+            return 'user_' . auth()->id();
         }
 
-        return $response;
+        // Si on a déjà un cookie, on l'utilise
+        if ($request->hasCookie('visitor_id')) {
+            return $request->cookie('visitor_id');
+        }
+
+        // Sinon on génère une empreinte basée sur l'appareil (IP + Navigateur)
+        return 'device_' . md5($request->ip() . $request->header('User-Agent'));
     }
 }

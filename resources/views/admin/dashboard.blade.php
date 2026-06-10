@@ -1,83 +1,191 @@
-@php
-if (!auth()->guard('admin')->check()) {
-    abort(403);
-}
-@endphp
-
 @extends('layout.app')
 
-@section('title', 'Dashboard Admin')
+@section('title', 'Tableau de Bord - DigitalSpace Admin')
 
 @section('content')
-<section class="max-w-7xl mx-auto px-6 py-12 space-y-10">
-  <div class="text-center space-y-2">
-    <p class="uppercase tracking-[0.3em] text-xs font-semibold text-secondary">Admin</p>
-    <h1 class="text-3xl font-display text-primary">Dashboard</h1>
-  </div>
-
-  <div class="flex flex-wrap justify-center gap-3">
-    <a href="{{ route('admin.products.index') }}" class="btn btn-primary rounded-full">Gerer les travaux</a>
-    <a href="{{ route('admin.posts.index') }}" class="btn btn-secondary rounded-full">Gerer le blog</a>
-    <a href="{{ route('admin.portfolio.index') }}" class="btn rounded-full border border-slate-200 bg-white">Gerer le portfolio</a>
-    <a href="{{ route('admin.profile.index') }}" class="btn rounded-full border border-slate-200 bg-white">Mon profil</a>
-  </div>
-
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    @php
-      $stats = [
-          ['label' => 'Travaux', 'value' => $totalProducts, 'tone' => 'bg-white'],
-          ['label' => 'Travaux publies', 'value' => $publishedProducts, 'tone' => 'bg-green-50'],
-          ['label' => 'Brouillons', 'value' => $unpublishedProducts, 'tone' => 'bg-yellow-50'],
-          ['label' => 'Prix moyen', 'value' => number_format($avgPrice ?? 0, 0, ',', ' ') . ' CFA', 'tone' => 'bg-white'],
-          ['label' => 'Total ventes', 'value' => $totalSales, 'tone' => 'bg-white'],
-          ['label' => 'Articles', 'value' => $totalPosts, 'tone' => 'bg-white'],
-          ['label' => 'Articles publies', 'value' => $publishedPosts, 'tone' => 'bg-green-50'],
-          ['label' => 'Commentaires', 'value' => $totalComments, 'tone' => 'bg-white'],
-          ['label' => 'Portfolio', 'value' => $portfolioCount, 'tone' => 'bg-white'],
-          ['label' => 'Messages chat', 'value' => $chatMessages, 'tone' => 'bg-white'],
-      ];
-    @endphp
-
-    @foreach($stats as $stat)
-      <div class="glass rounded-2xl p-5 {{ $stat['tone'] }}">
-        <p class="text-xs uppercase tracking-[0.3em] text-secondary">{{ $stat['label'] }}</p>
-        <p class="text-2xl font-heading mt-2">{{ $stat['value'] }}</p>
-      </div>
-    @endforeach
-  </div>
-
-  <div class="grid gap-8 lg:grid-cols-2">
-    <div class="glass rounded-3xl p-6">
-      <h2 class="text-xl font-heading mb-4">Travaux recents</h2>
-      @if($latestProducts->isEmpty())
-        <p class="text-slate-600">Aucun travail recent.</p>
-      @else
-        <ul class="space-y-3">
-          @foreach($latestProducts as $product)
-            <li class="flex items-center justify-between text-sm">
-              <span>{{ $product->title }}</span>
-              <span class="text-slate-500">{{ $product->created_at->format('d/m/Y') }}</span>
-            </li>
-          @endforeach
-        </ul>
-      @endif
+<section class="max-w-7xl mx-auto px-6 py-12 space-y-12">
+    <!-- Welcome Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-white p-10 rounded-[3rem] border border-slate-100 shadow-soft">
+        <div class="flex items-center gap-6">
+            <div class="w-24 h-24 rounded-[2rem] overflow-hidden shadow-2xl shadow-primary/20 border-4 border-white flex-none">
+                @if(Auth::guard('admin')->user()->profile_picture)
+                    <img src="{{ asset('storage/' . Auth::guard('admin')->user()->profile_picture) }}" class="w-full h-full object-cover">
+                @else
+                    <div class="w-full h-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white text-4xl font-black">
+                        {{ strtoupper(substr(Auth::guard('admin')->user()->name, 0, 1)) }}
+                    </div>
+                @endif
+            </div>
+            <div class="space-y-1">
+                <h1 class="text-4xl font-bold text-slate-900 tracking-tight">Bonjour, <span class="text-primary italic font-display">{{ Auth::guard('admin')->user()->name }}</span> !</h1>
+                <p class="text-slate-500 font-medium">Ravi de vous revoir. Voici l'état de votre espace digital aujourd'hui.</p>
+            </div>
+        </div>
+        <div class="flex gap-4">
+            <a href="{{ route('admin.profile.edit') }}" class="px-8 py-4 bg-slate-900 text-white rounded-[2rem] font-bold shadow-xl shadow-slate-900/10 hover:bg-primary transition-all flex items-center gap-2 group">
+                <i class="fas fa-user-circle text-slate-400 group-hover:text-white transition-colors"></i>
+                <span>Mon Profil</span>
+            </a>
+        </div>
     </div>
 
-    <div class="glass rounded-3xl p-6">
-      <h2 class="text-xl font-heading mb-4">Travaux les plus chers</h2>
-      @if($topProducts->isEmpty())
-        <p class="text-slate-600">Aucun travail disponible.</p>
-      @else
-        <ul class="space-y-3">
-          @foreach($topProducts as $product)
-            <li class="flex items-center justify-between text-sm">
-              <span>{{ $product->title }}</span>
-              <span class="font-semibold">{{ $product->price ?? '-' }} CFA</span>
-            </li>
-          @endforeach
-        </ul>
-      @endif
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Sales Card -->
+        <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-soft group hover:border-primary transition-colors cursor-pointer">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-14 h-14 bg-primary/5 text-primary rounded-2xl flex items-center justify-center text-2xl group-hover:bg-primary group-hover:text-white transition-all">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Ventes</span>
+            </div>
+            <p class="text-4xl font-black text-slate-900 mb-1">{{ number_format($totalSales) }}</p>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-tighter">Commandes traitées</p>
+        </div>
+
+        <!-- Products Card -->
+        <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-soft group hover:border-secondary transition-colors cursor-pointer">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-14 h-14 bg-secondary/5 text-secondary rounded-2xl flex items-center justify-center text-2xl group-hover:bg-secondary group-hover:text-white transition-all">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Catalogue</span>
+            </div>
+            <p class="text-4xl font-black text-slate-900 mb-1">{{ $publishedProducts }}</p>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-tighter">Produits en ligne</p>
+        </div>
+
+        <!-- Posts Card -->
+        <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-soft group hover:border-indigo-500 transition-colors cursor-pointer">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-14 h-14 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Blog</span>
+            </div>
+            <p class="text-4xl font-black text-slate-900 mb-1">{{ $publishedPosts }}</p>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-tighter">Articles publiés</p>
+        </div>
+
+        <!-- Messages Card -->
+        <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-soft group hover:border-amber-500 transition-colors cursor-pointer">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-amber-500 group-hover:text-white transition-all">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Interaction</span>
+            </div>
+            <p class="text-4xl font-black text-slate-900 mb-1">{{ $totalComments }}</p>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-tighter">Retours clients</p>
+        </div>
     </div>
-  </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <!-- Quick Actions Sidebar -->
+        <div class="space-y-8">
+            <div class="bg-slate-900 p-10 rounded-[3.5rem] shadow-2xl shadow-slate-900/30 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                <div class="relative space-y-8">
+                    <h2 class="text-2xl font-black italic font-display">Actions <span class="text-primary">Rapides</span></h2>
+                    <div class="grid gap-3">
+                        <a href="{{ route('admin.products.create') }}" class="flex items-center gap-4 p-4 bg-white/10 rounded-2xl hover:bg-white/20 transition-all group">
+                            <i class="fas fa-plus text-primary group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-bold">Nouveau Produit</span>
+                        </a>
+                        <a href="{{ route('admin.posts.create') }}" class="flex items-center gap-4 p-4 bg-white/10 rounded-2xl hover:bg-white/20 transition-all group">
+                            <i class="fas fa-pen-nib text-secondary group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-bold">Rédiger un Article</span>
+                        </a>
+                        <a href="{{ route('admin.portfolio.create') }}" class="flex items-center gap-4 p-4 bg-white/10 rounded-2xl hover:bg-white/20 transition-all group">
+                            <i class="fas fa-briefcase text-indigo-400 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-sm font-bold">Ajouter un Projet</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Site Settings Quick View -->
+            <div class="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-soft space-y-8">
+                <h2 class="text-xl font-black text-slate-900">Configuration <span class="text-slate-400 italic font-display">Site</span></h2>
+                <div class="space-y-4">
+                    @can('manage-admins')
+                    <a href="{{ route('admin.admins.index') }}" class="p-4 bg-white rounded-2xl border border-slate-100 flex items-center justify-between group cursor-pointer hover:border-primary transition-colors">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-user-shield text-slate-300 group-hover:text-primary transition-colors"></i>
+                            <span class="text-xs font-bold text-slate-600">Gérer l'Équipe</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-[10px] text-slate-300"></i>
+                    </a>
+                    @endcan
+                    <div class="p-4 bg-white rounded-2xl border border-slate-100 flex items-center justify-between group cursor-pointer hover:border-primary transition-colors">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-envelope-open-text text-slate-300 group-hover:text-primary transition-colors"></i>
+                            <span class="text-xs font-bold text-slate-600">Config Email</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-[10px] text-slate-300"></i>
+                    </div>
+                </div>
+
+                <div class="pt-8 border-t border-slate-50">
+                    <form action="{{ route('admin.logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-full py-4 bg-red-50 text-red-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-3 group">
+                            <i class="fas fa-power-off group-hover:rotate-90 transition-transform"></i>
+                            <span>Déconnexion Sécurisée</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latest Content -->
+        <div class="lg:col-span-2 space-y-12">
+            <!-- Latest Sales -->
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-black text-slate-900 italic font-display">Ventes <span class="text-primary">Récentes</span></h2>
+                    <a href="{{ route('admin.orders.index') }}" class="text-xs font-black text-slate-400 hover:text-primary transition-colors uppercase tracking-widest">Tout voir</a>
+                </div>
+                
+                <div class="bg-white rounded-[3rem] border border-slate-100 shadow-soft overflow-hidden">
+                    @forelse($latestProducts as $product)
+                        <div class="p-6 border-b border-slate-50 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden flex-none">
+                                    <img src="{{ $product->image ?? 'https://via.placeholder.com/50' }}" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-900">{{ $product->title }}</p>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">{{ $product->type }}</p>
+                                </div>
+                            </div>
+                            <p class="text-sm font-black text-primary">{{ number_format($product->price, 0, ',', ' ') }} <span class="text-[10px]">CFA</span></p>
+                        </div>
+                    @empty
+                        <div class="p-12 text-center text-slate-400 italic">Aucune donnée disponible</div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="space-y-6">
+                <h2 class="text-2xl font-black text-slate-900 italic font-display">Produits <span class="text-secondary">Phare</span></h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    @foreach($topProducts as $product)
+                        <div class="p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-soft hover:shadow-xl transition-all group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-10 h-10 rounded-lg bg-secondary/5 text-secondary flex items-center justify-center text-sm">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Premium</span>
+                            </div>
+                            <h3 class="font-bold text-slate-900 mb-2 group-hover:text-secondary transition-colors">{{ $product->title }}</h3>
+                            <p class="text-2xl font-black text-primary">{{ number_format($product->price, 0, ',', ' ') }} <span class="text-[10px]">CFA</span></p>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 @endsection

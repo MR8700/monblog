@@ -22,7 +22,7 @@ class ChatMessageSent implements ShouldBroadcast
 
     public function broadcastOn(): Channel
     {
-        return new Channel('chat.global');
+        return new Channel('chat.' . $this->message->room);
     }
 
     public function broadcastAs(): string

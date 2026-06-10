@@ -12,20 +12,14 @@ use Illuminate\Support\Facades\Auth;
 class ProductController extends Controller
 {
     /**
-     * Liste des produits.
-     * - Admin : tous les produits.
-     * - Public : uniquement les produits publiés.
-     */
-
-    /**
      * Affiche la liste publique des produits.
      */
-    public function publicIndex()
+    public function publicIndex(Request $request)
     {
-        // On récupère uniquement les produits publiés (si tu as un champ 'published')
         $products = Product::where('published', true)
+            ->filter($request->all())
             ->orderByDesc('created_at')
-            ->paginate(12); // pagination de 12 produits par page
+            ->paginate(12);
 
         return view('admin.products.index', compact('products'));
     }
@@ -43,36 +37,40 @@ class ProductController extends Controller
         return view('admin.products.show', compact('product'));
     }
 
-public function publicHome()
-{
-    // Récupère uniquement les produits publiés, les plus récents en premier, pagination de 9 par page
-    $products = Product::where('published', true)
-                        ->latest()
-                        ->take(6)
-                        ->get();
+    public function publicHome()
+    {
+        // Récupère uniquement les produits publiés, les plus récents en premier, pagination de 9 par page
+        $products = Product::where('published', true)
+                            ->latest()
+                            ->take(6)
+                            ->get();
 
-    $latestPosts = Post::where('published', true)
-        ->orderByDesc('published_at')
-        ->orderByDesc('created_at')
-        ->take(3)
-        ->get();
+        $latestPosts = Post::where('published', true)
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->take(3)
+            ->get();
 
-    $featuredPortfolio = PortfolioItem::where('featured', true)
-        ->orderBy('sort_order')
-        ->take(3)
-        ->get();
+        $featuredPortfolio = PortfolioItem::where('featured', true)
+            ->orderBy('sort_order')
+            ->take(3)
+            ->get();
 
-    // Retourne la vue publique (tu peux utiliser la même vue que pour la liste si tu veux)
-    return view('home', compact('products', 'latestPosts', 'featuredPortfolio'));
-}
+        // Retourne la vue publique (tu peux utiliser la même vue que pour la liste si tu veux)
+        return view('home', compact('products', 'latestPosts', 'featuredPortfolio'));
+    }
 
-    public function index()
+    public function index(Request $request)
     {
         $isAdmin = Auth::guard('admin')->check();
 
-        $products = $isAdmin
-            ? Product::latest()->paginate(10)
-            : Product::where('published', true)->latest()->paginate(9);
+        $query = Product::filter($request->all());
+
+        if (!$isAdmin) {
+            $query->where('published', true);
+        }
+
+        $products = $query->latest()->paginate($isAdmin ? 10 : 9);
 
         return view('admin.products.index', compact('products', 'isAdmin'));
     }
@@ -115,6 +113,12 @@ public function publicHome()
             $data['image'] = '/storage/' . $request->file('image')->store('products', 'public');
         }
 
+        if ($request->hasFile('file')) {
+            $data['file_path'] = $request->file('file')->store('downloads', 'private');
+        }
+
+        $data['is_downloadable'] = $request->filled('is_downloadable');
+
         Product::create($data);
 
         return redirect()->route('admin.products.index')->with('success', 'Produit créé avec succès.');
@@ -142,6 +146,12 @@ public function publicHome()
             $data['image'] = '/storage/' . $request->file('image')->store('products', 'public');
         }
 
+        if ($request->hasFile('file')) {
+            $data['file_path'] = $request->file('file')->store('downloads', 'private');
+        }
+
+        $data['is_downloadable'] = $request->filled('is_downloadable');
+
         $product->update($data);
 
         return redirect()->route('admin.products.index')->with('success', 'Produit mis à jour.');
@@ -165,9 +175,12 @@ public function publicHome()
     {
         $data = $request->validate([
             'title'       => 'required|string|max:255',
+            'type'        => 'required|string|in:work,app,task,service',
             'description' => 'nullable|string',
             'price'       => 'nullable|numeric',
             'image'       => 'nullable|image|max:2048',
+            'file'        => 'nullable|file|max:20480', // 20MB max
+            'is_downloadable' => 'nullable|boolean',
             'whatsapp'    => 'nullable|string',
             'facebook'    => 'nullable|url',
             'phone'       => 'nullable|string',

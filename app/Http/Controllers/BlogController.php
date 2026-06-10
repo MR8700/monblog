@@ -131,12 +131,18 @@ class BlogController extends Controller
     private function canViewPost(Post $post): bool
     {
         // Les articles publics et visibles sont accessibles à tous
+        // Utilisation de equals ou comparaison directe si casté en Enum
         if ($post->status === PostStatus::PUBLISHED && 
             $post->visibility === PostVisibility::PUBLIC) {
             return true;
         }
 
-        // Les admins peuvent voir les leurs
+        // Si l'article est privé, seuls les utilisateurs connectés (ou admins) peuvent le voir
+        if ($post->visibility === PostVisibility::PRIVATE && Auth::check()) {
+            return true;
+        }
+
+        // Les admins peuvent voir tous leurs articles
         if (Auth::guard('admin')->check() && Auth::guard('admin')->id() === $post->admin_id) {
             return true;
         }
@@ -166,7 +172,7 @@ class BlogController extends Controller
     }
 
     /**
-     * Obtenir l'identifiant du visiteur
+     * Obtenir l'identifiant du visiteur (robuste: Cookie + IP + User Agent)
      */
     private function getVisitorId(Request $request): string
     {
@@ -178,6 +184,6 @@ class BlogController extends Controller
             return $request->cookie('visitor_id');
         }
 
-        return 'guest_' . $request->ip() . '_' . $request->header('User-Agent');
+        return 'device_' . md5($request->ip() . $request->header('User-Agent'));
     }
 }

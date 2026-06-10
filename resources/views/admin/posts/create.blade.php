@@ -194,6 +194,35 @@
             </label>
           </div>
 
+          <div class="space-y-4 pt-4 border-t border-slate-100">
+            <div>
+              <label for="price" class="block text-sm font-semibold text-ink mb-2">
+                <i class="fas fa-tag text-secondary mr-2"></i> Prix (CFA)
+              </label>
+              <input 
+                type="number" 
+                id="price"
+                name="price"
+                step="0.01"
+                class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary transition"
+                value="{{ old('price') }}"
+                placeholder="Ex: 5000"
+              >
+            </div>
+            <div class="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
+              <input 
+                type="checkbox"
+                id="is_premium"
+                name="is_premium"
+                class="rounded"
+                {{ old('is_premium') ? 'checked' : '' }}
+              >
+              <label for="is_premium" class="text-sm font-medium text-blue-900">
+                <i class="fas fa-crown text-blue-600 mr-1"></i> Article Premium
+              </label>
+            </div>
+          </div>
+
           <div class="flex items-center gap-2">
             <button 
               type="submit"

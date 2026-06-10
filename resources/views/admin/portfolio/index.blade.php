@@ -9,6 +9,26 @@
     <a href="{{ route('admin.portfolio.create') }}" class="btn btn-primary rounded-full">Nouveau projet</a>
   </div>
 
+  <!-- Filters -->
+  <div class="glass p-6 rounded-3xl mb-8">
+    <form action="{{ url()->current() }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-3 relative">
+            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Titre, Rôle, Stack..." class="w-full pl-12 pr-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-medium">
+        </div>
+        <div class="flex gap-2">
+            <select name="featured" class="flex-1 px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-700">
+                <option value="">En vedette ?</option>
+                <option value="1" {{ request('featured') == '1' ? 'selected' : '' }}>Oui</option>
+                <option value="0" {{ request('featured') == '0' ? 'selected' : '' }}>Non</option>
+            </select>
+            <button type="submit" class="px-6 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-primary transition-all shadow-lg">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+    </form>
+  </div>
+
   <div class="glass rounded-3xl overflow-hidden">
     <table class="w-full text-left text-sm">
       <thead class="bg-slate-50">

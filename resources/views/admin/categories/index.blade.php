@@ -59,8 +59,8 @@
                       callback: () => {
                         const form = document.createElement('form');
                         form.method = 'POST';
-                        form.action = '{{ route(\"admin.categories.destroy\", $category) }}';
-                        form.innerHTML = '@csrf @method(\"DELETE\")<button type=\"submit\"></button>';
+                        form.action = '{{ route("admin.categories.destroy", $category) }}';
+                        form.innerHTML = '<input type=\'hidden\' name=\'_token\' value=\'{{ csrf_token() }}\'><input type=\'hidden\' name=\'_method\' value=\'DELETE\'><button type=\'submit\'></button>';
                         document.body.appendChild(form);
                         return new Promise(resolve => {
                           form.addEventListener('submit', (e) => {

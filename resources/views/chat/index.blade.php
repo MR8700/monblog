@@ -3,123 +3,120 @@
 @section('title', 'Chat en direct')
 
 @section('content')
-<section class="max-w-7xl mx-auto px-6 py-12 grid gap-10 lg:grid-cols-3">
-  <div class="lg:col-span-2 space-y-6">
+<section class="max-w-7xl mx-auto px-6 py-12">
+  <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div>
-        <p class="uppercase tracking-[0.3em] text-xs font-semibold text-secondary">Chat</p>
-        <h1 class="text-3xl font-display text-primary">Discussion en temps reel</h1>
+        <p class="uppercase tracking-[0.3em] text-xs font-semibold text-secondary">Chat Privé</p>
+        <h1 class="text-3xl font-display text-primary">Discussion directe</h1>
       </div>
-      <span class="text-xs text-slate-500">Salon public</span>
+      <span class="text-xs text-slate-500">ID: {{ substr($room, 5, 8) }}</span>
     </div>
 
-    <div id="chat-box" class="glass rounded-3xl p-6 h-[28rem] overflow-y-auto space-y-4">
+    <div id="chat-box" class="glass rounded-3xl p-6 h-[32rem] overflow-y-auto space-y-4">
       @foreach($messages as $message)
-        <div class="space-y-2">
-          <div class="flex items-center gap-2 text-sm font-semibold">
-            <span>{{ $message->author_name }}</span>
-            @if($message->author_type === 'admin')
-              <span class="px-2 py-1 text-xs rounded-full bg-secondary/20 text-secondary">Admin</span>
-            @endif
-            <span class="text-xs text-slate-400">{{ $message->created_at->format('H:i') }}</span>
-          </div>
-          @if($message->body)
-            <p class="text-sm text-slate-700">{{ $message->body }}</p>
-          @endif
-          @if($message->attachments->isNotEmpty())
-            <div class="flex flex-wrap gap-3">
-              @foreach($message->attachments as $file)
-                @if(str_starts_with($file->mime, 'image/'))
-                  <a href="{{ $file->path }}" target="_blank" class="block">
-                    <img src="{{ $file->path }}" alt="{{ $file->original_name }}" class="w-28 h-20 object-cover rounded-xl border border-slate-200">
-                  </a>
-                @else
-                  <a href="{{ $file->path }}" target="_blank" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs">
-                    {{ $file->original_name }}
-                  </a>
-                @endif
-              @endforeach
+        <div class="flex {{ $message->author_type === 'admin' ? 'justify-start' : 'justify-end' }}">
+          <div class="max-w-[80%] space-y-1">
+            <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 {{ $message->author_type === 'admin' ? '' : 'flex-row-reverse' }}">
+              <span>{{ $message->author_type === 'admin' ? 'Support Admin' : 'Vous' }}</span>
+              <span>{{ $message->created_at->format('H:i') }}</span>
             </div>
-          @endif
+            
+            <div class="p-4 rounded-2xl shadow-sm {{ $message->author_type === 'admin' ? 'bg-white text-slate-700 border border-slate-100' : 'bg-primary text-white' }}">
+              @if($message->body)
+                <p class="text-sm leading-relaxed">{{ $message->body }}</p>
+              @endif
+
+              @if($message->attachments->isNotEmpty())
+                <div class="mt-3 flex flex-wrap gap-2">
+                  @foreach($message->attachments as $file)
+                    @if(str_starts_with($file->mime, 'image/'))
+                      <a href="{{ $file->path }}" target="_blank" class="block rounded-lg overflow-hidden border border-black/5">
+                        <img src="{{ $file->path }}" alt="{{ $file->original_name }}" class="w-32 h-24 object-cover">
+                      </a>
+                    @else
+                      <a href="{{ $file->path }}" target="_blank" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/5 text-[10px] font-bold uppercase">
+                        <i class="fas fa-file"></i> Fichier
+                      </a>
+                    @endif
+                  @endforeach
+                </div>
+              @endif
+            </div>
+          </div>
         </div>
       @endforeach
     </div>
 
     <form method="POST" action="{{ route('chat.store') }}" enctype="multipart/form-data" class="glass rounded-3xl p-6 space-y-4">
       @csrf
-      @if(!Auth::guard('admin')->check())
-        <input type="text" name="name" placeholder="Votre nom" class="w-full rounded-xl border border-slate-200 px-4 py-2">
-      @endif
-      <textarea name="body" rows="3" placeholder="Votre message" class="w-full rounded-xl border border-slate-200 px-4 py-2"></textarea>
-      <input type="file" name="attachments[]" multiple class="w-full text-sm">
-      <button type="submit" class="btn btn-primary rounded-full">Envoyer</button>
-    </form>
-  </div>
-
-  <div class="lg:col-span-1 space-y-6">
-    <div class="glass rounded-3xl p-6 space-y-3">
-      <h2 class="text-xl font-heading">Appel video</h2>
-      <p class="text-sm text-slate-600">Rejoignez le salon video public pour discuter en direct.</p>
-      <div class="aspect-video rounded-2xl overflow-hidden border border-slate-200">
-        <iframe
-          src="https://meet.jit.si/MonEspaceProChat"
-          allow="camera; microphone; fullscreen; display-capture"
-          class="w-full h-full"
-        ></iframe>
+      <input type="hidden" name="room" value="{{ $room }}">
+      <div class="flex gap-4 items-end">
+        <div class="flex-1 space-y-4">
+          <textarea name="body" rows="2" placeholder="Tapez votre message ici..." class="w-full rounded-2xl border-transparent bg-slate-50 px-6 py-4 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all text-sm" required></textarea>
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 text-xs text-slate-400 cursor-pointer hover:text-primary transition-colors">
+              <i class="fas fa-paperclip"></i>
+              <span>Joindre un fichier</span>
+              <input type="file" name="attachments[]" multiple class="hidden">
+            </label>
+            <span class="text-[10px] text-slate-300">Votre discussion est privée et sécurisée</span>
+          </div>
+        </div>
+        <button type="submit" class="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+          <i class="fas fa-paper-plane"></i>
+        </button>
       </div>
-    </div>
+    </form>
   </div>
 </section>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
+    const box = document.getElementById('chat-box');
+    box.scrollTop = box.scrollHeight;
+
     if (!window.Echo) return;
-    window.Echo.channel('chat.global')
+    window.Echo.channel('chat.{{ $room }}')
       .listen('.chat.message', (event) => {
         const message = event.message;
-        const box = document.getElementById('chat-box');
+        const isAdmin = message.author_type === 'admin';
+        
         const wrapper = document.createElement('div');
-        wrapper.className = 'space-y-2';
+        wrapper.className = `flex ${isAdmin ? 'justify-start' : 'justify-end'}`;
 
-        const header = document.createElement('div');
-        header.className = 'flex items-center gap-2 text-sm font-semibold';
-        header.innerHTML = `
-          <span>${message.author_name}</span>
-          ${message.author_type === 'admin' ? '<span class="px-2 py-1 text-xs rounded-full bg-secondary/20 text-secondary">Admin</span>' : ''}
-          <span class="text-xs text-slate-400">now</span>
-        `;
-
-        wrapper.appendChild(header);
-
-        if (message.body) {
-          const body = document.createElement('p');
-          body.className = 'text-sm text-slate-700';
-          body.textContent = message.body;
-          wrapper.appendChild(body);
-        }
-
+        let attachmentsHtml = '';
         if (message.attachments && message.attachments.length) {
-          const files = document.createElement('div');
-          files.className = 'flex flex-wrap gap-3';
-          message.attachments.forEach((file) => {
+          attachmentsHtml = '<div class="mt-3 flex flex-wrap gap-2">';
+          message.attachments.forEach(file => {
             const isImage = file.mime && file.mime.startsWith('image/');
-            const link = document.createElement('a');
-            link.href = file.path;
-            link.target = '_blank';
-            link.className = isImage ? 'block' : 'px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs';
             if (isImage) {
-              const img = document.createElement('img');
-              img.src = file.path;
-              img.alt = file.original_name;
-              img.className = 'w-28 h-20 object-cover rounded-xl border border-slate-200';
-              link.appendChild(img);
+              attachmentsHtml += `
+                <a href="${file.path}" target="_blank" class="block rounded-lg overflow-hidden border border-black/5">
+                  <img src="${file.path}" alt="${file.original_name}" class="w-32 h-24 object-cover">
+                </a>`;
             } else {
-              link.textContent = file.original_name;
+              attachmentsHtml += `
+                <a href="${file.path}" target="_blank" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/5 text-[10px] font-bold uppercase">
+                  <i class="fas fa-file"></i> Fichier
+                </a>`;
             }
-            files.appendChild(link);
           });
-          wrapper.appendChild(files);
+          attachmentsHtml += '</div>';
         }
+
+        wrapper.innerHTML = `
+          <div class="max-w-[80%] space-y-1">
+            <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 ${isAdmin ? '' : 'flex-row-reverse'}">
+              <span>${isAdmin ? 'Support Admin' : 'Vous'}</span>
+              <span>now</span>
+            </div>
+            <div class="p-4 rounded-2xl shadow-sm ${isAdmin ? 'bg-white text-slate-700 border border-slate-100' : 'bg-primary text-white'}">
+              ${message.body ? `<p class="text-sm leading-relaxed">${message.body}</p>` : ''}
+              ${attachmentsHtml}
+            </div>
+          </div>
+        `;
 
         box.appendChild(wrapper);
         box.scrollTop = box.scrollHeight;

@@ -27,15 +27,25 @@
       <div>
         <h3 class="font-semibold mb-4 text-lg">Vos articles</h3>
         <div class="space-y-3">
-          @foreach($order->orderItems as $item)
+          @foreach($order->items as $item)
             <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
               <div>
-                <p class="font-medium">{{ $item->product->name ?? 'Produit' }}</p>
+                <p class="font-medium">{{ $item->product->title ?? $item->post->title ?? 'Article' }}</p>
                 <p class="text-sm text-slate-600">Quantité: {{ $item->quantity }}</p>
+                @if($order->payment_status === 'paid' && $item->product?->is_downloadable)
+                  <a href="{{ URL::signedRoute('orders.download', ['order' => $order, 'product' => $item->product]) }}" class="inline-flex items-center gap-2 mt-2 px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-600/20">
+                    <i class="fas fa-download"></i> Télécharger le fichier
+                  </a>
+                @endif
+                @if($order->payment_status === 'paid' && $item->post)
+                  <a href="{{ route('blog.show', $item->post) }}" class="inline-flex items-center gap-2 mt-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-primary-dark transition shadow-lg shadow-primary/20">
+                    <i class="fas fa-eye"></i> Accéder au contenu
+                  </a>
+                @endif
               </div>
               <div class="text-right">
-                <p class="font-semibold">{{ number_format($item->quantity * $item->unit_price, 2) }}€</p>
-                <p class="text-sm text-slate-600">{{ number_format($item->unit_price, 2) }}€ x{{ $item->quantity }}</p>
+                <p class="font-bold text-slate-900">{{ number_format($item->quantity * $item->price, 2) }}€</p>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ number_format($item->price, 2) }}€ / unité</p>
               </div>
             </div>
           @endforeach
@@ -46,22 +56,10 @@
       <div class="border-t border-slate-200 pt-6">
         <div class="flex justify-between items-center mb-2">
           <span class="text-slate-600">Sous-total</span>
-          <span>{{ number_format($order->orderItems->sum(fn($i) => $i->quantity * $i->unit_price), 2) }}€</span>
+          <span class="font-bold text-slate-900">{{ number_format($order->total_price, 2) }}€</span>
         </div>
-        @if(($order->tax_amount ?? 0) > 0)
-          <div class="flex justify-between items-center mb-2 text-sm text-slate-600">
-            <span>TVA</span>
-            <span>{{ number_format($order->tax_amount, 2) }}€</span>
-          </div>
-        @endif
-        @if(($order->shipping_cost ?? 0) > 0)
-          <div class="flex justify-between items-center mb-4 text-sm text-slate-600">
-            <span>Frais de port</span>
-            <span>{{ number_format($order->shipping_cost, 2) }}€</span>
-          </div>
-        @endif
-        <div class="flex justify-between items-center text-xl font-bold text-primary border-t pt-4">
-          <span>Total TTC</span>
+        <div class="flex justify-between items-center text-2xl font-black text-primary border-t pt-4">
+          <span>TOTAL</span>
           <span>{{ number_format($order->total_price, 2) }}€</span>
         </div>
       </div>
@@ -75,22 +73,57 @@
       <div class="space-y-4">
         <div>
           <p class="text-slate-600 text-sm mb-1">Nom</p>
-          <p class="font-medium">{{ $order->customer_name }}</p>
+          <p class="font-medium">{{ $order->user_name }}</p>
         </div>
         <div>
           <p class="text-slate-600 text-sm mb-1">Email</p>
-          <p class="font-medium break-all">{{ $order->customer_email }}</p>
+          <p class="font-medium break-all">{{ $order->user_email }}</p>
         </div>
-        @if($order->customer_phone)
+        @if($order->user_phone)
           <div>
             <p class="text-slate-600 text-sm mb-1">Téléphone</p>
-            <p class="font-medium">{{ $order->customer_phone }}</p>
+            <p class="font-medium">{{ $order->user_phone }}</p>
           </div>
         @endif
       </div>
-      <p class="text-sm text-slate-600 mt-6 pt-6 border-t">
-        ✉️ Un email de confirmation a été envoyé à <strong>{{ $order->customer_email }}</strong>
-      </p>
+      <div class="mt-6 pt-6 border-t space-y-3">
+        <p class="text-sm text-slate-600">
+          ✉️ Un email de confirmation a été envoyé à <strong>{{ $order->user_email }}</strong>
+        </p>
+        <div class="flex items-center gap-2 p-3 bg-yellow-50 text-yellow-800 rounded-xl text-xs border border-yellow-100">
+          <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+          <span>Veuillez vérifier vos <strong>Spams (courriers indésirables)</strong> si vous ne recevez pas l'email.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Info Card -->
+    <div class="glass rounded-3xl p-8 mb-8 bg-slate-50/50">
+      <h3 class="font-semibold mb-6 text-lg flex items-center gap-2">
+        <i class="fas fa-credit-card text-primary"></i> Paiement
+      </h3>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+          <div>
+              <span class="text-slate-500">Méthode</span>
+              <p class="font-bold">{{ strtoupper(str_replace('_', ' ', $order->payment_method ?? 'Non défini')) }}</p>
+          </div>
+          <div>
+              <span class="text-slate-500">Statut</span>
+              <p class="font-bold">
+                  <span class="px-2 py-0.5 rounded-full
+                      {{ $order->payment_status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700' }}
+                  ">
+                      {{ strtoupper($order->payment_status) }}
+                  </span>
+              </p>
+          </div>
+          @if($order->payment_reference)
+          <div class="col-span-2 border-t pt-2">
+              <span class="text-slate-500">Référence Transaction</span>
+              <p class="font-mono text-xs">{{ $order->payment_reference }}</p>
+          </div>
+          @endif
+      </div>
     </div>
 
     <!-- Next Steps -->
@@ -109,11 +142,7 @@
         </li>
         <li class="flex gap-3">
           <span class="flex-shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold">3</span>
-          <span><strong>Envoi :</strong> Vous serez notifié lors de l'expédition</span>
-        </li>
-        <li class="flex gap-3">
-          <span class="flex-shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold">4</span>
-          <span><strong>Livraison :</strong> Suivi de livraison mis à jour régulièrement</span>
+          <span><strong>Validation :</strong> Notre équipe vérifiera votre paiement Orange Money / Visa</span>
         </li>
       </ol>
     </div>

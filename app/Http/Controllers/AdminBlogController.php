@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
+use Illuminate\Http\Request;
+
 class AdminBlogController extends Controller
 {
     use AuthorizesRequests;
@@ -28,11 +30,12 @@ class AdminBlogController extends Controller
     /**
      * Liste des articles (admin)
      */
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('create', Post::class);
 
         $posts = Post::withRelations()
+            ->filter($request->all())
             ->paginate(15);
 
         return view('admin.posts.index', compact('posts'));

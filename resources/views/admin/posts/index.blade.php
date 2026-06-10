@@ -11,6 +11,35 @@
     </a>
   </div>
 
+  <!-- Filters -->
+  <div class="glass p-6 rounded-3xl mb-8">
+    <form action="{{ url()->current() }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-2 relative">
+            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher un article..." class="w-full pl-12 pr-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-medium">
+        </div>
+        <div>
+            <select name="status" class="w-full px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-700">
+                <option value="">Tous les statuts</option>
+                @foreach(\App\Enums\PostStatus::cases() as $status)
+                    <option value="{{ $status->value }}" {{ request('status') == $status->value ? 'selected' : '' }}>{{ $status->label() }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="flex gap-2">
+            <select name="visibility" class="flex-1 px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-700">
+                <option value="">Visibilité</option>
+                @foreach(\App\Enums\PostVisibility::cases() as $visibility)
+                    <option value="{{ $visibility->value }}" {{ request('visibility') == $visibility->value ? 'selected' : '' }}>{{ $visibility->label() }}</option>
+                @endforeach
+            </select>
+            <button type="submit" class="px-6 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-primary transition-all shadow-lg">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+    </form>
+  </div>
+
   @if($posts->isEmpty())
     <div class="glass rounded-3xl p-12 text-center">
       <i class="fas fa-inbox text-4xl text-slate-300 mb-4"></i>
@@ -98,8 +127,8 @@
                       callback: () => {
                         const form = document.createElement('form');
                         form.method = 'POST';
-                        form.action = '{{ route(\"admin.posts.destroy\", $post) }}';
-                        form.innerHTML = '@csrf @method(\"DELETE\")<button type=\"submit\"></button>';
+                        form.action = '{{ route("admin.posts.destroy", $post) }}';
+                        form.innerHTML = '<input type=\'hidden\' name=\'_token\' value=\'{{ csrf_token() }}\'><input type=\'hidden\' name=\'_method\' value=\'DELETE\'><button type=\'submit\'></button>';
                         document.body.appendChild(form);
                         return new Promise(resolve => {
                           form.addEventListener('submit', (e) => {

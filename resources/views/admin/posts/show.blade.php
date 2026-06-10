@@ -45,7 +45,7 @@
   </div>
 
   <!-- Status badges -->
-  <div class="flex gap-2 mb-8">
+  <div class="flex flex-wrap gap-2 mb-8">
     <span class="px-3 py-1 text-sm rounded-full font-medium {{ $statusClasses }}">
       <i class="fas fa-circle text-xs mr-1"></i>
       {{ $post->status->label() }}
@@ -57,6 +57,16 @@
     @if($post->featured)
       <span class="px-3 py-1 text-sm rounded-full font-medium bg-amber-100 text-amber-700">
         <i class="fas fa-star text-xs mr-1"></i> En vedette
+      </span>
+    @endif
+    @if($post->is_premium)
+      <span class="px-3 py-1 text-sm rounded-full font-medium bg-blue-100 text-blue-700">
+        <i class="fas fa-crown text-xs mr-1"></i> Premium
+      </span>
+    @endif
+    @if($post->price > 0)
+      <span class="px-3 py-1 text-sm rounded-full font-medium bg-green-100 text-green-700">
+        <i class="fas fa-tag text-xs mr-1"></i> {{ number_format($post->price, 0, ',', ' ') }} CFA
       </span>
     @endif
   </div>

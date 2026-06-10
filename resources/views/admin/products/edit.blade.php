@@ -1,40 +1,88 @@
 @extends('layout.app')
 
-@section('title', 'Modifier un travail')
+@section('title', 'Modifier Produit - Admin')
 
 @section('content')
-@if(Auth::guard('admin')->check())
-<section class="max-w-4xl mx-auto px-6 py-12">
-  <h1 class="text-2xl font-heading mb-6">Modifier un travail</h1>
-
-  <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="glass rounded-3xl p-6 space-y-4">
-    @csrf
-    @method('PUT')
-    <input type="text" name="title" value="{{ $product->title }}" class="w-full rounded-xl border border-slate-200 px-4 py-2" required>
-    <textarea name="description" rows="4" class="w-full rounded-xl border border-slate-200 px-4 py-2">{{ $product->description }}</textarea>
-    <input type="number" name="price" step="0.01" value="{{ $product->price }}" class="w-full rounded-xl border border-slate-200 px-4 py-2">
-    <input type="file" name="image" class="w-full text-sm">
-
-    <div class="grid gap-4 md:grid-cols-2">
-      <input type="text" name="whatsapp" value="{{ $product->whatsapp }}" placeholder="WhatsApp" class="w-full rounded-xl border border-slate-200 px-4 py-2">
-      <input type="url" name="facebook" value="{{ $product->facebook }}" placeholder="Lien Facebook" class="w-full rounded-xl border border-slate-200 px-4 py-2">
-    </div>
-    <div class="grid gap-4 md:grid-cols-2">
-      <input type="text" name="phone" value="{{ $product->phone }}" placeholder="Telephone" class="w-full rounded-xl border border-slate-200 px-4 py-2">
-      <input type="email" name="email" value="{{ $product->email }}" placeholder="Email" class="w-full rounded-xl border border-slate-200 px-4 py-2">
+<section class="max-w-4xl mx-auto px-6 py-12 space-y-12">
+    <div class="flex items-center justify-between">
+        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Modifier <span class="text-secondary italic font-display">{{ $product->title }}</span></h1>
+        <a href="{{ route('admin.products.index') }}" class="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-primary transition-colors flex items-center gap-2">
+            <i class="fas fa-arrow-left"></i> Annuler & Retour
+        </a>
     </div>
 
-    <div class="flex items-center gap-2">
-      <input type="checkbox" name="published" id="published" class="rounded" {{ $product->published ? 'checked' : '' }}>
-      <label for="published" class="text-sm">Publier</label>
-    </div>
+    <form action="{{ route('admin.products.update', $product) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+        @csrf
+        @method('PUT')
+        
+        <div class="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-soft space-y-8">
+            <div class="grid gap-6 md:grid-cols-2">
+                <div class="md:col-span-2 space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Titre du produit</label>
+                    <input type="text" name="title" value="{{ old('title', $product->title) }}" required
+                           class="w-full bg-slate-50 border-2 border-transparent rounded-2xl px-6 py-4 focus:outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all font-medium">
+                </div>
 
-    <button type="submit" class="btn btn-primary rounded-full">Mettre a jour</button>
-  </form>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Type de service</label>
+                    <select name="type" required class="w-full bg-slate-50 border-2 border-transparent rounded-2xl px-6 py-4 focus:outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all font-medium">
+                        <option value="app" {{ $product->type == 'app' ? 'selected' : '' }}>Application</option>
+                        <option value="service" {{ $product->type == 'service' ? 'selected' : '' }}>Service</option>
+                        <option value="task" {{ $product->type == 'task' ? 'selected' : '' }}>Tâche / Code</option>
+                        <option value="work" {{ $product->type == 'work' ? 'selected' : '' }}>Travail Portfolio</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Prix (CFA)</label>
+                    <input type="number" name="price" value="{{ old('price', $product->price) }}"
+                           class="w-full bg-slate-50 border-2 border-transparent rounded-2xl px-6 py-4 focus:outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all font-medium">
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Description complète</label>
+                <textarea name="description" rows="5" class="w-full bg-slate-50 border-2 border-transparent rounded-2xl px-6 py-4 focus:outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all font-medium">{{ old('description', $product->description) }}</textarea>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2">
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Image de couverture</label>
+                    @if($product->image)
+                        <div class="w-32 h-32 rounded-2xl overflow-hidden border border-slate-100 mb-2">
+                            <img src="{{ $product->image }}" class="w-full h-full object-cover">
+                        </div>
+                    @endif
+                    <input type="file" name="image" class="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-6 py-4 text-sm">
+                </div>
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Fichier numérique</label>
+                    @if($product->file_path)
+                        <div class="p-4 bg-green-50 text-green-600 rounded-2xl text-xs font-bold flex items-center gap-2">
+                            <i class="fas fa-file-shield"></i> Fichier déjà présent
+                        </div>
+                    @endif
+                    <input type="file" name="file" class="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl px-6 py-4 text-sm">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 p-6 bg-slate-50 rounded-2xl">
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" name="published" value="1" id="published" {{ $product->published ? 'checked' : '' }} class="w-5 h-5 rounded-lg text-primary focus:ring-primary border-slate-300">
+                    <label for="published" class="text-sm font-bold text-slate-700">Publié</label>
+                </div>
+                <div class="flex items-center gap-3 ml-8">
+                    <input type="checkbox" name="is_downloadable" value="1" id="is_downloadable" {{ $product->is_downloadable ? 'checked' : '' }} class="w-5 h-5 rounded-lg text-primary focus:ring-primary border-slate-300">
+                    <label for="is_downloadable" class="text-sm font-bold text-slate-700">Téléchargeable</label>
+                </div>
+            </div>
+
+            <div class="pt-6">
+                <button type="submit" class="w-full py-5 bg-secondary text-white rounded-3xl font-black uppercase tracking-[0.2em] shadow-2xl shadow-secondary/20 hover:bg-secondary-dark hover:-translate-y-1 transition-all">
+                    Enregistrer les Modifications
+                </button>
+            </div>
+        </div>
+    </form>
 </section>
-@else
-<section class="max-w-3xl mx-auto px-6 py-12">
-  <div class="glass rounded-3xl p-6 text-red-600">Acces interdit.</div>
-</section>
-@endif
 @endsection

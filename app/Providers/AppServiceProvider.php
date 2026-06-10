@@ -39,6 +39,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Order::class, OrderPolicy::class);
         Gate::policy(PortfolioItem::class, PortfolioItemPolicy::class);
 
+        // Gates
+        Gate::define('manage-admins', function ($user) {
+            return $user instanceof \App\Models\Admin && $user->isSuperAdmin();
+        });
+
         // Register Events & Listeners
         Event::listen(
             [PostCreated::class, PostUpdated::class],

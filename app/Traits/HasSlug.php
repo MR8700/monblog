@@ -13,7 +13,7 @@ trait HasSlug
     {
         static::creating(function ($model) {
             if (empty($model->slug)) {
-                $model->slug = Str::slug($model->{$this->getSlugSourceColumn()});
+                $model->slug = Str::slug($model->{$model->getSlugSourceColumn()});
 
                 // Assurer l'unicité du slug
                 $count = 1;
@@ -26,8 +26,8 @@ trait HasSlug
         });
 
         static::updating(function ($model) {
-            if ($model->isDirty($this->getSlugSourceColumn())) {
-                $model->slug = Str::slug($model->{$this->getSlugSourceColumn()});
+            if ($model->isDirty($model->getSlugSourceColumn())) {
+                $model->slug = Str::slug($model->{$model->getSlugSourceColumn()});
 
                 // Assurer l'unicité du slug
                 $count = 1;

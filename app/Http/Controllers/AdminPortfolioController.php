@@ -8,10 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminPortfolioController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $this->authorizeAdmin();
-        $items = PortfolioItem::orderBy('sort_order')->latest()->paginate(12);
+        $items = PortfolioItem::filter($request->all())
+            ->orderBy('sort_order')
+            ->latest()
+            ->paginate(12);
 
         return view('admin.portfolio.index', compact('items'));
     }

@@ -2,13 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  a {
+    @apply text-primary hover:text-secondary;
+  }
+
+  /* Ensure icons inside links inherit the parent's color or their own classes */
+  a i, a svg {
+    color: inherit;
+  }
+}
+
 /* Global styles */
 html, body {
   scroll-behavior: smooth;
-}
-
-a {
-  @apply text-primary hover:text-secondary;
 }
 
 body {

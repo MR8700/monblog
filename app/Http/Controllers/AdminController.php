@@ -37,11 +37,25 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:admins,email,' . $admin->id,
+            'profile_picture' => 'nullable|image|max:2048',
+            'current_password' => 'required',
             'password' => ['nullable', 'confirmed', Password::defaults()],
         ]);
 
+        if (!Hash::check($request->current_password, $admin->password)) {
+            return back()->withErrors(['current_password' => 'Le mot de passe actuel est incorrect.']);
+        }
+
         $admin->name = $request->name;
         $admin->email = $request->email;
+
+        if ($request->hasFile('profile_picture')) {
+            // Supprimer l'ancienne si elle existe
+            if ($admin->profile_picture && \Illuminate\Support\Facades\Storage::exists($admin->profile_picture)) {
+                \Illuminate\Support\Facades\Storage::delete($admin->profile_picture);
+            }
+            $admin->profile_picture = $request->file('profile_picture')->store('avatars', 'public');
+        }
 
         if ($request->filled('password')) {
             $admin->password = Hash::make($request->password);
@@ -49,7 +63,7 @@ class AdminController extends Controller
 
         $admin->save();
 
-        return redirect()->route('admin.profile.index')->with('success', 'Profil mis a jour avec succes !');
+        return redirect()->route('admin.profile.index')->with('success', 'Profil mis à jour avec succès !');
     }
 
     public function showLoginForm()
@@ -62,6 +76,13 @@ class AdminController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::guard('admin')->attempt($credentials)) {
+            $admin = Auth::guard('admin')->user();
+            
+            if ($admin->is_suspended) {
+                Auth::guard('admin')->logout();
+                return back()->withErrors(['email' => 'Votre compte est suspendu. Veuillez contacter le super administrateur.']);
+            }
+
             return redirect()->intended(route('admin.dashboard'));
         }
 

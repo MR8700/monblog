@@ -3,249 +3,292 @@
 @section('title', 'Commande #' . $order->id)
 
 @section('content')
-<div class="max-w-4xl mx-auto px-6 py-12">
-  <!-- Header -->
-  <div class="flex items-center justify-between mb-8">
+<style>
+    @media print {
+        body * { visibility: hidden; }
+        #invoice, #invoice * { visibility: visible; }
+        #invoice { 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            padding: 40px;
+            background: white !important;
+            color: black !important;
+        }
+        .no-print { display: none !important; }
+        .glass, .btn, nav, footer { display: none !important; }
+        body { background: white !important; }
+    }
+</style>
+
+<div class="max-w-5xl mx-auto px-6 py-12">
+  <!-- Header (Hidden on Print) -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 no-print">
     <div>
-      <a href="{{ route('admin.orders.index') }}" class="text-primary hover:text-primary-dark transition mb-2 inline-block">
-        <i class="fas fa-arrow-left mr-1"></i> Retour aux commandes
+      <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center text-sm font-bold text-slate-500 hover:text-primary transition mb-4">
+        <i class="fas fa-arrow-left mr-2"></i> Retour aux commandes
       </a>
-      <h1 class="text-3xl font-heading">Commande #{{ $order->id }}</h1>
-      <p class="text-slate-600 mt-1">{{ $order->created_at->format('d F Y à H:i') }}</p>
+      <h1 class="text-4xl font-bold text-slate-900 tracking-tight">Détails de la <span class="text-primary italic">Commande</span></h1>
+      <p class="text-slate-500 mt-2 font-medium">Référence #{{ $order->id }} • {{ $order->created_at->format('d/m/Y à H:i') }}</p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex items-center gap-3">
       <button 
-        onclick="printOrder()"
-        class="btn btn-primary rounded-full"
+        onclick="window.print()"
+        class="flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-primary transition-all shadow-xl shadow-slate-900/20"
       >
-        <i class="fas fa-print mr-1"></i> Imprimer
+        <i class="fas fa-print"></i> Imprimer la facture
       </button>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Main Content -->
-    <div class="lg:col-span-2 space-y-6">
-      <!-- Status -->
-      <div class="glass rounded-2xl p-6">
-        <h3 class="font-semibold mb-4 flex items-center gap-2">
-          <i class="fas fa-info-circle text-primary"></i> Statut de la commande
-        </h3>
-        <div class="space-y-3">
-          <div class="flex items-center gap-4">
-            <select 
-              id="statusSelect"
-              class="flex-1 px-4 py-2 rounded-lg border border-primary text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/30"
-              onchange="updateOrderStatus(this.value)"
-            >
-              <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>En attente</option>
-              <option value="confirmed" {{ $order->status === 'confirmed' ? 'selected' : '' }}>Confirmée</option>
-              <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>En cours</option>
-              <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>Complétée</option>
-              <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Annulée</option>
-            </select>
-            <span class="px-4 py-2 rounded-full text-sm font-semibold
+  <!-- Main Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 no-print">
+    <!-- Left Column: Details & Items -->
+    <div class="lg:col-span-2 space-y-8">
+      <!-- Status Card -->
+      <div class="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40">
+        <div class="flex items-center justify-between mb-8">
+            <h3 class="text-xl font-bold text-slate-900 flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center text-sm">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                Suivi du Statut
+            </h3>
+            <span class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest
               {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-700' : '' }}
               {{ $order->status === 'confirmed' ? 'bg-blue-100 text-blue-700' : '' }}
               {{ $order->status === 'processing' ? 'bg-purple-100 text-purple-700' : '' }}
               {{ $order->status === 'completed' ? 'bg-green-100 text-green-700' : '' }}
               {{ $order->status === 'cancelled' ? 'bg-red-100 text-red-700' : '' }}
             ">
-              {{ ucfirst($order->status) }}
+              {{ $order->status }}
             </span>
-          </div>
         </div>
+
+        <form action="{{ route('admin.orders.update', $order) }}" method="POST" class="flex flex-col md:flex-row gap-4">
+            @csrf
+            @method('PUT')
+            <select name="status" class="flex-1 bg-slate-50 border-transparent rounded-2xl px-6 py-4 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-700">
+                <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>⏳ En attente</option>
+                <option value="confirmed" {{ $order->status === 'confirmed' ? 'selected' : '' }}>✅ Confirmée</option>
+                <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>⚙️ En cours</option>
+                <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>🏁 Complétée</option>
+                <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>❌ Annulée</option>
+            </select>
+            <button type="submit" class="px-8 py-4 bg-primary text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-primary/20 transition-all">
+                Mettre à jour
+            </button>
+        </form>
       </div>
 
-      <!-- Articles commandés -->
-      <div class="glass rounded-2xl p-6 overflow-x-auto">
-        <h3 class="font-semibold mb-4 flex items-center gap-2">
-          <i class="fas fa-box text-primary"></i> Articles ({{ $order->orderItems->count() }})
+      <!-- Payment Info -->
+      <div class="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100">
+        <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
+            <i class="fas fa-credit-card text-primary text-sm"></i> Informations de Paiement
         </h3>
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50 rounded-lg">
-            <tr class="border-b">
-              <th class="text-left px-4 py-2 font-semibold">Produit</th>
-              <th class="text-center px-4 py-2 font-semibold">Quantité</th>
-              <th class="text-right px-4 py-2 font-semibold">Prix unitaire</th>
-              <th class="text-right px-4 py-2 font-semibold">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach($order->orderItems as $item)
-              <tr class="border-b border-slate-100 hover:bg-slate-50/50">
-                <td class="px-4 py-3">
-                  <div>
-                    <p class="font-medium">{{ $item->product->name ?? 'Produit supprimé' }}</p>
-                    @if($item->product)
-                      <p class="text-xs text-slate-600">{{ $item->product->slug }}</p>
-                    @endif
-                  </div>
-                </td>
-                <td class="text-center px-4 py-3">
-                  <span class="font-semibold">{{ $item->quantity }}</span>
-                </td>
-                <td class="text-right px-4 py-3">
-                  {{ number_format($item->unit_price, 2) }}€
-                </td>
-                <td class="text-right px-4 py-3 font-semibold">
-                  {{ number_format($item->quantity * $item->unit_price, 2) }}€
-                </td>
-              </tr>
-            @endforeach
-          </tbody>
-        </table>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="space-y-1">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Méthode</span>
+                <p class="font-bold text-slate-700">{{ strtoupper(str_replace('_', ' ', $order->payment_method ?? 'En attente')) }}</p>
+            </div>
+            <div class="space-y-1">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Statut Financier</span>
+                <p class="font-bold">
+                    <span class="{{ $order->payment_status === 'paid' ? 'text-green-600' : 'text-slate-500' }}">
+                        {{ strtoupper($order->payment_status) }}
+                    </span>
+                </p>
+            </div>
+            @if($order->payment_reference)
+            <div class="space-y-1">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Référence</span>
+                <p class="font-mono text-xs text-slate-500 break-all">{{ $order->payment_reference }}</p>
+            </div>
+            @endif
+        </div>
       </div>
 
-      <!-- Notes -->
-      @if($order->notes ?? null)
-        <div class="glass rounded-2xl p-6 bg-blue-50/50 border border-blue-100">
-          <h3 class="font-semibold mb-2 flex items-center gap-2 text-blue-900">
-            <i class="fas fa-sticky-note text-blue-600"></i> Notes
-          </h3>
-          <p class="text-blue-900 text-sm">{{ $order->notes }}</p>
+      <!-- Items List -->
+      <div class="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40">
+        <h3 class="text-xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+            <i class="fas fa-shopping-basket text-primary"></i> Articles Commandés
+        </h3>
+        <div class="space-y-4">
+            @foreach($order->items as $item)
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-slate-50 rounded-[2rem] border border-slate-100/50 hover:border-primary/20 transition-all group">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 group-hover:bg-primary group-hover:text-white transition-all">
+                            <i class="fas {{ $item->product_id ? 'fa-box' : 'fa-file-alt' }} text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-900">{{ $item->product->name ?? $item->post->title ?? 'Élément supprimé' }}</p>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                {{ $item->post ? 'Accès Digital' : 'Marketplace' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-12 text-right">
+                        <div class="text-center">
+                            <span class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Qté</span>
+                            <span class="font-bold text-slate-700">x{{ $item->quantity }}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Sous-total</span>
+                            <span class="font-black text-slate-900">{{ number_format($item->quantity * $item->price, 2) }}€</span>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
-      @endif
+      </div>
     </div>
 
-    <!-- Sidebar -->
-    <div class="space-y-4">
-      <!-- Informations client -->
-      <div class="glass rounded-2xl p-6">
-        <h3 class="font-semibold mb-4 flex items-center gap-2">
-          <i class="fas fa-user text-primary"></i> Client
+    <!-- Right Column: Client & Totals -->
+    <div class="space-y-8">
+      <!-- Client Info -->
+      <div class="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40">
+        <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
+            <i class="fas fa-user-circle text-primary"></i> Informations Client
         </h3>
-        <div class="space-y-2 text-sm">
-          <div>
-            <span class="text-slate-600">Nom</span>
-            <p class="font-medium">{{ $order->customer_name }}</p>
-          </div>
-          <div class="border-t pt-2">
-            <span class="text-slate-600">Email</span>
-            <p class="font-medium break-all">{{ $order->customer_email }}</p>
-          </div>
-          <div class="border-t pt-2">
-            <span class="text-slate-600">Téléphone</span>
-            <p class="font-medium">{{ $order->customer_phone ?? 'Non fourni' }}</p>
-          </div>
+        <div class="space-y-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-primary/5 text-primary rounded-xl flex items-center justify-center font-bold">
+                    {{ strtoupper(substr($order->user_name, 0, 1)) }}
+                </div>
+                <div>
+                    <p class="font-bold text-slate-900">{{ $order->user_name }}</p>
+                    <p class="text-xs text-slate-500 font-medium">{{ $order->user_email }}</p>
+                </div>
+            </div>
+            <div class="pt-6 border-t border-slate-50">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">Téléphone</span>
+                <p class="font-bold text-slate-700">{{ $order->user_phone ?? 'Non renseigné' }}</p>
+            </div>
+            <div class="pt-4">
+                <a href="{{ route('admin.customers.show', $order->user_email) }}" class="text-xs font-black uppercase tracking-widest text-primary hover:text-primary-dark transition-all flex items-center gap-2">
+                    Voir historique client <i class="fas fa-arrow-right text-[8px]"></i>
+                </a>
+            </div>
         </div>
       </div>
 
-      <!-- Récapitulatif financier -->
-      <div class="glass rounded-2xl p-6">
-        <h3 class="font-semibold mb-4 flex items-center gap-2">
-          <i class="fas fa-calculator text-primary"></i> Récapitulatif
+      <!-- Financial Recap -->
+      <div class="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-[60px] rounded-full"></div>
+        <h3 class="text-lg font-bold mb-8 relative z-10 flex items-center gap-3">
+            <i class="fas fa-calculator text-primary text-sm"></i> Facturation
         </h3>
-        <div class="space-y-3 text-sm">
-          <div class="flex justify-between">
-            <span class="text-slate-600">Sous-total</span>
-            <span>{{ number_format($order->orderItems->sum(fn($i) => $i->quantity * $i->unit_price), 2) }}€</span>
-          </div>
-          @if(($order->tax_amount ?? 0) > 0)
-            <div class="flex justify-between border-t pt-3">
-              <span class="text-slate-600">TVA {{ ($order->tax_rate ?? 20) }}%</span>
-              <span>{{ number_format($order->tax_amount, 2) }}€</span>
+        <div class="space-y-4 relative z-10">
+            <div class="flex justify-between items-center">
+                <span class="text-slate-400 font-medium">Sous-total</span>
+                <span class="font-bold text-slate-200">{{ number_format($order->total_price, 2) }}€</span>
             </div>
-          @endif
-          @if(($order->shipping_cost ?? 0) > 0)
-            <div class="flex justify-between border-t pt-3">
-              <span class="text-slate-600">Frais de port</span>
-              <span>{{ number_format($order->shipping_cost, 2) }}€</span>
+            <div class="flex justify-between items-center border-t border-white/10 pt-4">
+                <span class="text-xl font-bold">Total</span>
+                <span class="text-3xl font-black text-primary">{{ number_format($order->total_price, 2) }}€</span>
             </div>
-          @endif
-          <div class="flex justify-between border-t pt-3 font-semibold text-base">
-            <span>Total TTC</span>
-            <span class="text-primary">{{ number_format($order->total_price, 2) }}€</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Métadonnées -->
-      <div class="glass rounded-2xl p-6 text-sm space-y-3">
-        <div>
-          <span class="text-slate-600 block mb-1">ID Client IP</span>
-          <code class="text-xs bg-slate-100 px-2 py-1 rounded">{{ $order->customer_ip ?? 'N/A' }}</code>
-        </div>
-        <div class="border-t pt-3">
-          <span class="text-slate-600 block mb-1">Créée le</span>
-          <p>{{ $order->created_at->format('d/m/Y H:i:s') }}</p>
-        </div>
-        <div class="border-t pt-3">
-          <span class="text-slate-600 block mb-1">Modifiée le</span>
-          <p>{{ $order->updated_at->format('d/m/Y H:i:s') }}</p>
         </div>
       </div>
 
       <!-- Actions -->
-      <div class="glass rounded-2xl p-6 space-y-2">
-        <h3 class="font-semibold mb-3">Actions</h3>
-        <button 
-          onclick="sendConfirmationEmail()"
-          class="w-full px-4 py-2 text-sm rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition flex items-center justify-center gap-2"
-        >
-          <i class="fas fa-envelope"></i> Envoyer confirmation
+      <div class="space-y-3">
+        <button onclick="window.print()" class="w-full py-4 bg-white border border-slate-200 text-slate-900 rounded-2xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-3">
+            <i class="fas fa-file-invoice"></i> Télécharger PDF
         </button>
-        <button 
-          onclick="if(confirm('Voulez-vous vraiment annuler cette commande ?')) deleteOrder()"
-          class="w-full px-4 py-2 text-sm rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition flex items-center justify-center gap-2"
-        >
-          <i class="fas fa-times"></i> Annuler
-        </button>
+        <form action="{{ route('admin.orders.destroy', $order) }}" method="POST" onsubmit="return confirm('Supprimer définitivement cette commande ?');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="w-full py-4 bg-red-50 text-red-600 rounded-2xl font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-3">
+                <i class="fas fa-trash-alt"></i> Supprimer la commande
+            </button>
+        </form>
       </div>
     </div>
   </div>
 
-  <!-- Delete form (hidden) -->
-  <form id="deleteForm" action="{{ route('admin.orders.destroy', $order) }}" method="POST" style="display: none;">
-    @csrf
-    @method('DELETE')
-  </form>
+  <!-- PRINT ONLY: Professional Invoice -->
+  <div id="invoice" class="hidden print:block">
+      <div class="flex justify-between items-start mb-12">
+          <div>
+              <div class="flex items-center gap-3 mb-6">
+                  <div class="w-12 h-12 bg-black rounded-xl flex items-center justify-center text-white">
+                      <i class="fas fa-cube"></i>
+                  </div>
+                  <span class="text-2xl font-bold tracking-tight">Digital<span class="text-slate-500">Space</span></span>
+              </div>
+              <p class="text-sm font-bold uppercase tracking-widest text-slate-400">Agence Digitale Premium</p>
+              <p class="text-sm text-slate-500">Ouagadougou, Zone 1, Burkina Faso</p>
+              <p class="text-sm text-slate-500">contact@digitalspace.com</p>
+          </div>
+          <div class="text-right">
+              <h2 class="text-4xl font-black uppercase italic text-slate-900 mb-2">Facture</h2>
+              <p class="font-bold text-slate-500">RÉFÉRENCE #{{ $order->id }}</p>
+              <p class="text-sm text-slate-400 mt-1">Date: {{ $order->created_at->format('d/m/Y') }}</p>
+          </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-12 mb-16 py-8 border-y border-slate-100">
+          <div>
+              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Client / Destinataire</p>
+              <p class="text-lg font-bold text-slate-900">{{ $order->user_name }}</p>
+              <p class="text-slate-600">{{ $order->user_email }}</p>
+              <p class="text-slate-600">{{ $order->user_phone }}</p>
+          </div>
+          <div class="text-right">
+              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Paiement</p>
+              <p class="font-bold text-slate-900">Méthode: {{ strtoupper(str_replace('_', ' ', $order->payment_method ?? 'N/A')) }}</p>
+              <p class="font-bold text-slate-600">Statut: {{ strtoupper($order->payment_status) }}</p>
+          </div>
+      </div>
+
+      <table class="w-full mb-16">
+          <thead>
+              <tr class="text-left border-b-2 border-slate-900">
+                  <th class="py-4 text-xs font-black uppercase tracking-widest">Désignation</th>
+                  <th class="py-4 text-center text-xs font-black uppercase tracking-widest">Quantité</th>
+                  <th class="py-4 text-right text-xs font-black uppercase tracking-widest">Prix Unitaire</th>
+                  <th class="py-4 text-right text-xs font-black uppercase tracking-widest">Total</th>
+              </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+              @foreach($order->items as $item)
+                  <tr>
+                      <td class="py-6">
+                          <p class="font-bold text-slate-900">{{ $item->product->name ?? $item->post->title ?? 'Élément supprimé' }}</p>
+                          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                              {{ $item->post ? 'Service Digital' : 'Article Marketplace' }}
+                          </p>
+                      </td>
+                      <td class="py-6 text-center font-bold">{{ $item->quantity }}</td>
+                      <td class="py-6 text-right font-medium">{{ number_format($item->price, 2) }}€</td>
+                      <td class="py-6 text-right font-black">{{ number_format($item->quantity * $item->price, 2) }}€</td>
+                  </tr>
+              @endforeach
+          </tbody>
+      </table>
+
+      <div class="flex justify-end">
+          <div class="w-72 space-y-4">
+              <div class="flex justify-between text-slate-500 font-medium">
+                  <span>Sous-total</span>
+                  <span>{{ number_format($order->total_price, 2) }}€</span>
+              </div>
+              <div class="flex justify-between text-slate-500 font-medium">
+                  <span>TVA (0%)</span>
+                  <span>0.00€</span>
+              </div>
+              <div class="flex justify-between items-center pt-4 border-t-2 border-slate-900">
+                  <span class="text-xl font-black uppercase italic">Total</span>
+                  <span class="text-3xl font-black">{{ number_format($order->total_price, 2) }}€</span>
+              </div>
+          </div>
+      </div>
+
+      <div class="mt-32 pt-12 border-t border-slate-100 text-center">
+          <p class="text-sm font-bold text-slate-900 mb-2">Merci pour votre confiance !</p>
+          <p class="text-xs text-slate-400">Cette facture a été générée automatiquement. DigitalSpace Digital Agency.</p>
+      </div>
+  </div>
 </div>
-
-<script>
-function updateOrderStatus(status) {
-  fetch('{{ route("admin.orders.update", $order) }}', {
-    method: 'PUT',
-    headers: {
-      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({ status: status })
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.success) {
-      showToast('Statut mis à jour', 'success');
-    } else {
-      showToast('Erreur lors de la mise à jour', 'danger');
-      location.reload();
-    }
-  })
-  .catch(() => {
-    showToast('Erreur réseau', 'danger');
-    location.reload();
-  });
-}
-
-function sendConfirmationEmail() {
-  showToast('Envoi de l\'email en cours...', 'info');
-  // TODO: Implémenter l'envoi d'email
-}
-
-function deleteOrder() {
-  if (confirm('Cette action est irréversible')) {
-    document.getElementById('deleteForm').submit();
-  }
-}
-
-function printOrder() {
-  window.print();
-}
-
-function showToast(message, type) {
-  // Utiliser le système de toast Alpine.js si disponible
-  console.log(`[${type.toUpperCase()}] ${message}`);
-}
-</script>
 @endsection
