@@ -1,0 +1,167 @@
+<?php $__env->startSection('title', 'Articles admin'); ?>
+
+<?php $__env->startSection('content'); ?>
+<section class="max-w-6xl mx-auto px-6 py-12">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-heading">Articles</h1>
+    <a href="<?php echo e(route('admin.posts.create')); ?>" class="btn btn-primary rounded-full">
+      <i class="fas fa-plus mr-2"></i> Nouvel article
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="glass p-6 rounded-3xl mb-8">
+    <form action="<?php echo e(url()->current()); ?>" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-2 relative">
+            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
+            <input type="text" name="search" value="<?php echo e(request('search')); ?>" placeholder="Rechercher un article..." class="w-full pl-12 pr-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-medium">
+        </div>
+        <div>
+            <select name="status" class="w-full px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-700">
+                <option value="">Tous les statuts</option>
+                <?php $__currentLoopData = \App\Enums\PostStatus::cases(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($status->value); ?>" <?php echo e(request('status') == $status->value ? 'selected' : ''); ?>><?php echo e($status->label()); ?></option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </select>
+        </div>
+        <div class="flex gap-2">
+            <select name="visibility" class="flex-1 px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-700">
+                <option value="">Visibilité</option>
+                <?php $__currentLoopData = \App\Enums\PostVisibility::cases(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $visibility): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($visibility->value); ?>" <?php echo e(request('visibility') == $visibility->value ? 'selected' : ''); ?>><?php echo e($visibility->label()); ?></option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </select>
+            <button type="submit" class="px-6 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-primary transition-all shadow-lg">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+    </form>
+  </div>
+
+  <?php if($posts->isEmpty()): ?>
+    <div class="glass rounded-3xl p-12 text-center">
+      <i class="fas fa-inbox text-4xl text-slate-300 mb-4"></i>
+      <p class="text-slate-600">Aucun article créé</p>
+      <p class="text-sm text-slate-500 mt-2">Commencez par créer un nouvel article</p>
+    </div>
+  <?php else: ?>
+    <div class="glass rounded-3xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-primary/5 border-b border-primary-100">
+          <tr>
+            <th class="px-6 py-3 text-left font-semibold text-primary">Titre</th>
+            <th class="px-6 py-3 text-left font-semibold text-primary">Statut</th>
+            <th class="px-6 py-3 text-center font-semibold text-primary">Visibilité</th>
+            <th class="px-6 py-3 text-center font-semibold text-primary">Vues</th>
+            <th class="px-6 py-3 text-left font-semibold text-primary">Date</th>
+            <th class="px-6 py-3 text-right font-semibold text-primary">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+          <?php $__currentLoopData = $posts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $post): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php
+              $statusColor = match ($post->status) {
+                  \App\Enums\PostStatus::PUBLISHED => 'green',
+                  \App\Enums\PostStatus::ARCHIVED => 'red',
+                  default => 'yellow',
+              };
+
+              $visibilityColor = match ($post->visibility) {
+                  \App\Enums\PostVisibility::PUBLIC => 'blue',
+                  \App\Enums\PostVisibility::PRIVATE => 'purple',
+                  default => 'slate',
+              };
+
+              $statusClasses = match ($post->status) {
+                  default => 'bg-' . $statusColor . '-100 text-' . $statusColor . '-700',
+              };
+
+              $visibilityClasses = match ($post->visibility) {
+                  default => 'bg-' . $visibilityColor . '-100 text-' . $visibilityColor . '-700',
+              };
+            ?>
+            <tr class="hover:bg-primary/2 transition">
+              <td class="px-6 py-4 font-medium text-ink">
+                <a href="<?php echo e(route('admin.posts.show', $post)); ?>" class="hover:text-primary transition">
+                  <?php echo e($post->title); ?>
+
+                </a>
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-semibold <?php echo e($statusClasses); ?>">
+                  <i class="fas fa-circle text-xs"></i>
+                  <?php echo e($post->status->label()); ?>
+
+                </span>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <span class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-semibold <?php echo e($visibilityClasses); ?>">
+                  <i class="fas fa-eye text-xs"></i>
+                  <?php echo e($post->visibility->label()); ?>
+
+                </span>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <span class="inline-flex items-center gap-1 text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-full">
+                  <i class="fas fa-eye"></i> <?php echo e($post->views_count ?? 0); ?>
+
+                </span>
+              </td>
+              <td class="px-6 py-4 text-slate-600 text-xs">
+                <?php echo e($post->published_at?->format('d M Y') ?? 'Non définie'); ?>
+
+              </td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <a href="<?php echo e(route('admin.posts.show', $post)); ?>" class="inline-block px-3 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition text-xs font-semibold">
+                  <i class="fas fa-eye mr-1"></i> Voir
+                </a>
+                <a href="<?php echo e(route('admin.posts.edit', $post)); ?>" class="inline-block px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition text-xs font-semibold">
+                  <i class="fas fa-edit mr-1"></i> Éditer
+                </a>
+                <button 
+                  type="button"
+                  @click="window.dispatchEvent(new CustomEvent('open-confirm', {
+                    detail: {
+                      title: 'Supprimer l\'article ?',
+                      message: '<?php echo e(addslashes($post->title)); ?>',
+                      confirmText: 'Supprimer',
+                      cancelText: 'Annuler',
+                      type: 'danger',
+                      callback: () => {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '<?php echo e(route("admin.posts.destroy", $post)); ?>';
+                        form.innerHTML = '<input type=\'hidden\' name=\'_token\' value=\'<?php echo e(csrf_token()); ?>\'><input type=\'hidden\' name=\'_method\' value=\'DELETE\'><button type=\'submit\'></button>';
+                        document.body.appendChild(form);
+                        return new Promise(resolve => {
+                          form.addEventListener('submit', (e) => {
+                            form.submit();
+                            resolve();
+                          });
+                          form.querySelector('button').click();
+                        });
+                      }
+                    }
+                  }))"
+                  class="inline-block px-3 py-1 rounded-lg bg-danger/10 text-danger hover:bg-danger/20 transition text-xs font-semibold"
+                >
+                  <i class="fas fa-trash mr-1"></i> Supprimer
+                </button>
+              </td>
+            </tr>
+          <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </tbody>
+      </table>
+
+      <?php if($posts->hasPages()): ?>
+        <div class="px-6 py-4 border-t border-slate-200">
+          <?php echo e($posts->links()); ?>
+
+        </div>
+      <?php endif; ?>
+    </div>
+  <?php endif; ?>
+</section>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /var/www/monblog/resources/views/admin/posts/index.blade.php ENDPATH**/ ?>
