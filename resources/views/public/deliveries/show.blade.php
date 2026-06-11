@@ -15,9 +15,30 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <!-- Preview Space -->
             <div class="lg:col-span-2 space-y-8">
-                <div class="bg-white rounded-[3rem] overflow-hidden border border-slate-100 shadow-2xl relative group">
+                <div class="bg-white rounded-[3rem] overflow-hidden border border-slate-100 shadow-2xl relative group select-none">
                     @if($delivery->preview_path)
-                        <img src="{{ asset('storage/' . $delivery->preview_path) }}" alt="Preview" class="w-full h-auto">
+                        <div class="relative overflow-hidden" id="preview-container">
+                            <img src="{{ asset('storage/' . $delivery->preview_path) }}" alt="Preview" 
+                                 class="w-full h-auto pointer-events-none" 
+                                 oncontextmenu="return false;" 
+                                 ondragstart="return false;">
+                            
+                            @if($delivery->status !== 'paid')
+                                <!-- Watermark Overlay -->
+                                <div class="absolute inset-0 pointer-events-none overflow-hidden flex flex-wrap opacity-20 rotate-[-30deg] scale-150 origin-center translate-y-[-10%] translate-x-[-10%] z-10">
+                                    @for($i = 0; $i < 100; $i++)
+                                        <span class="text-[12px] font-black text-slate-900 uppercase tracking-widest p-4 whitespace-nowrap">
+                                            DigitalSpace - Propriété Exclusive - DigitalSpace - Propriété Exclusive
+                                        </span>
+                                    @endfor
+                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                                    <span class="text-4xl md:text-7xl font-black text-slate-900/10 uppercase tracking-[1em] rotate-12">
+                                        APERÇU PROTÉGÉ
+                                    </span>
+                                </div>
+                            @endif
+                        </div>
                     @else
                         <div class="aspect-video bg-slate-900 flex items-center justify-center text-white">
                             <div class="text-center space-y-4">
@@ -34,12 +55,12 @@
                                     <i class="fas fa-lock"></i>
                                 </div>
                                 <h2 class="text-2xl font-black text-slate-900">Produit Verrouillé</h2>
-                                <p class="text-slate-500 font-medium">Veuillez régler la somme de <span class="text-slate-900 font-bold">{{ number_format($delivery->price, 2) }}€</span> pour débloquer votre produit.</p>
+                                <p class="text-slate-500 font-medium">Veuillez régler la somme de <span class="text-slate-900 font-bold">{{ number_format($delivery->price, 0, ',', ' ') }} CFA</span> pour débloquer votre produit.</p>
                                 
                                 <form action="{{ route('deliveries.pay', $delivery->secure_token) }}" method="POST">
                                     @csrf
                                     <button type="submit" class="block w-full bg-primary text-white py-4 rounded-2xl font-black hover:shadow-lg transition-all">
-                                        Payer {{ number_format($delivery->price, 2) }}€ & Débloquer
+                                        Payer {{ number_format($delivery->price, 0, ',', ' ') }} CFA & Débloquer
                                     </button>
                                 </form>
                             </div>
@@ -128,7 +149,7 @@
                         </div>
                         <div class="space-y-1">
                             <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Montant à régler</span>
-                            <p class="text-3xl font-black text-primary">{{ number_format($delivery->price, 2) }}€</p>
+                            <p class="text-3xl font-black text-primary">{{ number_format($delivery->price, 0, ',', ' ') }} CFA</p>
                         </div>
                         <div class="pt-6 border-t border-white/10">
                             <p class="text-[10px] text-slate-400 leading-relaxed italic">

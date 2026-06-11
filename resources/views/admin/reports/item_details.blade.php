@@ -75,7 +75,7 @@
                                 </td>
                                 <td class="px-8 py-6 text-center font-bold text-slate-700">x{{ $sale->quantity }}</td>
                                 <td class="px-8 py-6 text-right font-black text-slate-900">
-                                    {{ number_format($sale->quantity * $sale->price, 2) }}€
+                                    {{ number_format($sale->quantity * $sale->price, 0, ',', ' ') }} CFA
                                 </td>
                                 <td class="px-8 py-6 text-right text-xs text-slate-500">
                                     {{ $sale->created_at->format('d/m/Y H:i') }}

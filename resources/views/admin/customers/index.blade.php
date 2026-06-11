@@ -61,7 +61,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="font-bold text-slate-900">{{ number_format($customer->total_spent, 2) }}€</span>
+                                    <span class="font-bold text-slate-900">{{ number_format($customer->total_spent, 0, ',', ' ') }} CFA</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="text-sm text-slate-600">

@@ -7,7 +7,7 @@ Nous avons le plaisir de vous confirmer la réception de votre paiement pour la 
 
 <x-mail::panel>
 ### Récapitulatif du paiement
-**Montant total :** {{ number_format($order->total_price, 2) }}€  
+**Montant total :** {{ number_format($order->total_price, 0, ',', ' ') }} CFA  
 **Méthode :** {{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}  
 **Statut :** Confirmé et Payé
 </x-mail::panel>

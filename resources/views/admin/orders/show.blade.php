@@ -135,7 +135,7 @@
                         </div>
                         <div>
                             <span class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Sous-total</span>
-                            <span class="font-black text-slate-900">{{ number_format($item->quantity * $item->price, 2) }}€</span>
+                            <span class="font-black text-slate-900">{{ number_format($item->quantity * $item->price, 0, ',', ' ') }} CFA</span>
                         </div>
                     </div>
                 </div>
@@ -292,3 +292,4 @@
   </div>
 </div>
 @endsection
+endsection

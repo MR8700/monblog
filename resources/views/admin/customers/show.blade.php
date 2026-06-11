@@ -30,7 +30,7 @@
                     <div class="w-px h-10 bg-white/10 self-center"></div>
                     <div class="text-center">
                         <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-1">Total Dépensé</p>
-                        <p class="text-2xl font-bold text-primary">{{ number_format($customer->total_spent, 2) }}€</p>
+                        <p class="text-2xl font-bold text-primary">{{ number_format($customer->total_spent, 0, ',', ' ') }} CFA</p>
                     </div>
                 </div>
             </div>
@@ -68,11 +68,11 @@
                                                     {{ $item->product ? $item->product->name : $item->post->title }}
                                                 </p>
                                                 <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
-                                                    Qté: {{ $item->quantity }} • {{ number_format($item->price, 2) }}€ / unité
+                                                    Qté: {{ $item->quantity }} • {{ number_format($item->price, 0, ',', ' ') }} CFA / unité
                                                 </p>
                                             </div>
                                             <div class="text-right">
-                                                <p class="font-bold text-slate-900">{{ number_format($item->quantity * $item->price, 2) }}€</p>
+                                                <p class="font-bold text-slate-900">{{ number_format($item->quantity * $item->price, 0, ',', ' ') }} CFA</p>
                                             </div>
                                         </div>
                                     @endforeach
@@ -82,7 +82,7 @@
                             <div class="md:w-64 flex flex-col justify-between items-end gap-6">
                                 <div class="text-right">
                                     <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Montant Total</p>
-                                    <p class="text-3xl font-bold text-slate-900">{{ number_format($order->total_price, 2) }}€</p>
+                                    <p class="text-3xl font-bold text-slate-900">{{ number_format($order->total_price, 0, ',', ' ') }} CFA</p>
                                 </div>
                                 <a href="{{ route('admin.orders.show', $order) }}" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-2xl font-bold hover:bg-primary transition-all shadow-lg shadow-slate-900/10">
                                     Détails Commande <i class="fas fa-arrow-right text-[10px]"></i>

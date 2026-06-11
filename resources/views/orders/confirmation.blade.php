@@ -44,8 +44,8 @@
                 @endif
               </div>
               <div class="text-right">
-                <p class="font-bold text-slate-900">{{ number_format($item->quantity * $item->price, 2) }}€</p>
-                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ number_format($item->price, 2) }}€ / unité</p>
+                <p class="font-bold text-slate-900">{{ number_format($item->quantity * $item->price, 0, ',', ' ') }} CFA</p>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ number_format($item->price, 0, ',', ' ') }} CFA / unité</p>
               </div>
             </div>
           @endforeach
@@ -56,11 +56,11 @@
       <div class="border-t border-slate-200 pt-6">
         <div class="flex justify-between items-center mb-2">
           <span class="text-slate-600">Sous-total</span>
-          <span class="font-bold text-slate-900">{{ number_format($order->total_price, 2) }}€</span>
+          <span class="font-bold text-slate-900">{{ number_format($order->total_price, 0, ',', ' ') }} CFA</span>
         </div>
         <div class="flex justify-between items-center text-2xl font-black text-primary border-t pt-4">
           <span>TOTAL</span>
-          <span>{{ number_format($order->total_price, 2) }}€</span>
+          <span>{{ number_format($order->total_price, 0, ',', ' ') }} CFA</span>
         </div>
       </div>
     </div>

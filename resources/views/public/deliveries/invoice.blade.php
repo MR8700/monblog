@@ -56,13 +56,13 @@
                         <strong>{{ $delivery->title }}</strong><br>
                         <small>{{ $delivery->serviceRequest->service_type }} - {{ Str::limit($delivery->description, 100) }}</small>
                     </td>
-                    <td style="text-align: right">{{ number_format($delivery->price, 2) }} €</td>
+                    <td style="text-align: right">{{ number_format($delivery->price, 0, ',', ' ') }} CFA</td>
                 </tr>
             </tbody>
         </table>
 
         <div class="total">
-            Total Payé: {{ number_format($delivery->price, 2) }} €
+            Total Payé: {{ number_format($delivery->price, 0, ',', ' ') }} CFA
         </div>
 
         <div class="footer">

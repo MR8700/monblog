@@ -47,7 +47,7 @@
                                         <span class="px-3 py-1 bg-slate-100 rounded-full text-xs">{{ $sale->total_sold }}</span>
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <span class="font-black text-primary">{{ number_format($sale->total_revenue, 2) }}€</span>
+                                        <span class="font-black text-primary">{{ number_format($sale->total_revenue, 0, ',', ' ') }} CFA</span>
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <a href="{{ route('admin.reports.sales.product', $sale->product) }}" class="text-xs font-bold text-slate-400 hover:text-primary transition-all">
@@ -101,7 +101,7 @@
                                         <span class="px-3 py-1 bg-slate-100 rounded-full text-xs">{{ $sale->total_sold }}</span>
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <span class="font-black text-secondary">{{ number_format($sale->total_revenue, 2) }}€</span>
+                                        <span class="font-black text-secondary">{{ number_format($sale->total_revenue, 0, ',', ' ') }} CFA</span>
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <a href="{{ route('admin.reports.sales.post', $sale->post) }}" class="text-xs font-bold text-slate-400 hover:text-secondary transition-all">

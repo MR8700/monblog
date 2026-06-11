@@ -248,7 +248,7 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Prix final (€)</label>
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Prix final (CFA)</label>
                     <input type="number" name="price" step="0.01" required value="{{ $serviceRequest->price }}" class="w-full bg-slate-50 border-transparent rounded-2xl px-6 py-4 font-black text-primary">
                 </div>
 
@@ -298,3 +298,4 @@ function logInteraction(type, customContent = null) {
 </script>
 @endpush
 @endsection
+ndsection

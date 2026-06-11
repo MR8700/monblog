@@ -13,7 +13,7 @@ Accéder à mon espace sécurisé
 
 **Détails de la livraison :**
 - **Produit :** {{ $delivery->title }}
-- **Montant :** {{ number_format($delivery->price, 2) }} €
+- **Montant :** {{ number_format($delivery->price, 0, ',', ' ') }} CFA
 
 Merci de votre confiance.
 

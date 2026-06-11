@@ -91,7 +91,7 @@
               <p class="text-xs text-slate-600">{{ $order->total_amount ?? $order->items->sum('quantity') }} unité(s)</p>
             </td>
             <td class="px-6 py-4">
-              <p class="font-semibold text-lg">{{ number_format($order->total_price, 2) }}€</p>
+              <p class="font-semibold text-lg">{{ number_format($order->total_price, 0, ',', ' ') }} CFA</p>
             </td>
             <td class="px-6 py-4">
               <span class="px-3 py-1 text-xs font-semibold rounded-full
