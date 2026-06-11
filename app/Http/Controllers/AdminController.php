@@ -38,6 +38,9 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:admins,email,' . $admin->id,
             'profile_picture' => 'nullable|image|max:2048',
+            'specialty' => 'nullable|string|max:255',
+            'bio' => 'nullable|string',
+            'skills' => 'nullable|string', // Comma separated for input
             'current_password' => 'required',
             'password' => ['nullable', 'confirmed', Password::defaults()],
         ]);
@@ -48,6 +51,14 @@ class AdminController extends Controller
 
         $admin->name = $request->name;
         $admin->email = $request->email;
+        $admin->specialty = $request->specialty;
+        $admin->bio = $request->bio;
+        
+        if ($request->filled('skills')) {
+            $admin->skills = array_map('trim', explode(',', $request->skills));
+        } else {
+            $admin->skills = [];
+        }
 
         if ($request->hasFile('profile_picture')) {
             // Supprimer l'ancienne si elle existe
@@ -101,7 +112,15 @@ class AdminController extends Controller
         $publishedProducts = Product::where('published', true)->count();
         $unpublishedProducts = Product::where('published', false)->count();
         $avgPrice = Product::where('published', true)->avg('price');
-        $totalSales = \App\Models\OrderItem::sum('quantity');
+        $totalSalesCount = \App\Models\Order::where('payment_status', 'paid')->count();
+
+        // Chiffre d'Affaires (CA)
+        $orderRevenue = \App\Models\Order::where('payment_status', 'paid')->sum('total_price');
+        $serviceRevenue = \App\Models\ServiceRequest::where('status', 'paid')->sum('price');
+        $totalTurnover = $orderRevenue + $serviceRevenue;
+
+        // Bénéfice estimé (80% du CA par défaut pour les services/produits digitaux)
+        $totalProfit = $totalTurnover * 0.8;
 
         $totalPosts = Post::count();
         $publishedPosts = Post::where('published', true)->count();
@@ -117,7 +136,9 @@ class AdminController extends Controller
             'publishedProducts',
             'unpublishedProducts',
             'avgPrice',
-            'totalSales',
+            'totalSalesCount',
+            'totalTurnover',
+            'totalProfit',
             'totalPosts',
             'publishedPosts',
             'totalComments',

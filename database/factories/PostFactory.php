@@ -14,10 +14,10 @@ class PostFactory extends Factory
     {
         return [
             'admin_id' => Admin::factory(),
-            'title' => $this->faker->sentence(),
+            'title' => $this->faker->realText(50),
             'slug' => $this->faker->unique()->slug(),
-            'excerpt' => $this->faker->paragraph(),
-            'body' => $this->faker->paragraphs(5, true),
+            'excerpt' => $this->faker->realText(200),
+            'body' => $this->faker->realText(2000),
             'published' => true,
             'published_at' => now(),
             'views_count' => $this->faker->numberBetween(0, 1000),

@@ -18,19 +18,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(AdminSeeder::class);
+        $this->call([
+            AdminSeeder::class,
+            PostSeeder::class,
+            ProductSeeder::class,
+            ServiceRequestSeeder::class,
+        ]);
         
         $admin = Admin::where('email', 'admin@gmail.com')->first();
-
-        // Seed Posts
-        if (Post::count() === 0) {
-            Post::factory(10)->create(['admin_id' => $admin->id]);
-        }
-
-        // Seed Products
-        if (Product::count() === 0) {
-            Product::factory(10)->create(['admin_id' => $admin->id]);
-        }
 
         // Seed Portfolio
         if (PortfolioItem::count() === 0) {
@@ -42,7 +37,7 @@ class DatabaseSeeder extends Seeder
             Order::factory(5)->create(['admin_id' => $admin->id])->each(function ($order) {
                 OrderItem::factory(3)->create([
                     'order_id' => $order->id,
-                    'product_id' => Product::inRandomOrder()->first()->id ?? Product::factory(),
+                    'product_id' => \App\Models\Product::inRandomOrder()->first()->id ?? \App\Models\Product::factory(),
                 ]);
             });
         }

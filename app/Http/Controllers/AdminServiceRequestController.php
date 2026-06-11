@@ -95,6 +95,10 @@ class AdminServiceRequestController extends Controller
             'admin_id' => Auth::id(),
         ]);
 
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
         return back()->with('success', 'Interaction enregistrée.');
     }
 

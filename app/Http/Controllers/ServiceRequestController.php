@@ -27,26 +27,46 @@ class ServiceRequestController extends Controller
             'attachments.*' => 'nullable|file|max:20480', // 20MB max
         ]);
 
-        $serviceRequest = ServiceRequest::create([
-            'client_name' => $validated['client_name'],
-            'client_email' => $validated['client_email'],
-            'client_phone' => $validated['client_phone'],
-            'service_type' => $validated['service_type'],
-            'description' => $validated['description'],
-            'custom_fields' => $request->input('custom_fields'),
-        ]);
+        try {
+            $serviceRequest = ServiceRequest::create([
+                'client_name' => $validated['client_name'],
+                'client_email' => $validated['client_email'],
+                'client_phone' => $validated['client_phone'],
+                'service_type' => $validated['service_type'],
+                'description' => $validated['description'],
+                'custom_fields' => $request->input('custom_fields'),
+                'status' => 'pending',
+            ]);
 
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $path = $file->store('service-requests', 'public');
-                $serviceRequest->attachments()->create([
-                    'file_path' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getClientMimeType(),
-                ]);
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    if ($file->isValid()) {
+                        $path = $file->store('service-requests', 'public');
+                        $serviceRequest->attachments()->create([
+                            'file_path' => $path,
+                            'file_name' => $file->getClientOriginalName(),
+                            'mime_type' => $file->getClientMimeType(),
+                        ]);
+                    }
+                }
             }
-        }
 
-        return redirect()->route('home')->with('success', 'Votre demande de service a été envoyée avec succès ! Nous vous contacterons bientôt.');
+            // Envoyer les notifications
+            try {
+                // Notification Admin
+                $adminEmail = config('mail.from.address'); // Ou une adresse spécifique
+                \Illuminate\Support\Facades\Mail::to($adminEmail)->send(new \App\Mail\ServiceRequestNotification($serviceRequest, 'admin'));
+                
+                // Notification Client
+                \Illuminate\Support\Facades\Mail::to($serviceRequest->client_email)->send(new \App\Mail\ServiceRequestNotification($serviceRequest, 'client'));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Erreur lors de l\'envoi des emails de service request: ' . $e->getMessage());
+            }
+
+            return redirect()->route('home')->with('success', 'Votre demande de service a été envoyée avec succès ! Nous vous contacterons bientôt.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Erreur lors de la création de la demande de service: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Une erreur est survenue lors de l\'envoi de votre demande. Veuillez réessayer.');
+        }
     }
 }

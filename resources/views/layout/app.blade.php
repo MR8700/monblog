@@ -347,6 +347,7 @@
                     <li><a href="{{ route('blog.index') }}" class="text-slate-400 hover:text-white flex items-center gap-2 group transition-colors"><span class="w-1.5 h-1.5 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>Articles & Blog</a></li>
                     <li><a href="{{ route('products.publicIndex') }}" class="text-slate-400 hover:text-white flex items-center gap-2 group transition-colors"><span class="w-1.5 h-1.5 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>Boutique</a></li>
                     <li><a href="{{ route('portfolio.index') }}" class="text-slate-400 hover:text-white flex items-center gap-2 group transition-colors"><span class="w-1.5 h-1.5 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>Portfolio</a></li>
+                    <li><a href="{{ route('about') }}" class="text-slate-400 hover:text-white flex items-center gap-2 group transition-colors"><span class="w-1.5 h-1.5 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>À Propos</a></li>
                 </ul>
             </div>
 

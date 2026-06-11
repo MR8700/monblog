@@ -48,6 +48,7 @@ Route::post('/contact', [ContactController::class, 'send'])->name('contact.send'
 // Pages Légales
 Route::view('/confidentialite', 'public.privacy')->name('privacy');
 Route::view('/conditions', 'public.terms')->name('terms');
+Route::get('/a-propos', [\App\Http\Controllers\AboutController::class, 'index'])->name('about');
 
 // Commandes (e-commerce)
 Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:10,1')->name('orders.store');

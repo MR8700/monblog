@@ -20,10 +20,14 @@ class Admin extends Authenticatable
         'password',
         'role',
         'is_suspended',
+        'bio',
+        'specialty',
+        'skills',
     ];
 
     protected $casts = [
         'is_suspended' => 'boolean',
+        'skills' => 'array',
     ];
 
     protected $hidden = [

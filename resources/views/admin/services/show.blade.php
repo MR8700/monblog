@@ -193,16 +193,38 @@
                     <div class="bg-white/10 p-4 rounded-xl break-all text-xs font-mono text-slate-300">
                         {{ route('deliveries.show', $serviceRequest->delivery->secure_token) }}
                     </div>
-                    <div class="flex flex-col gap-2">
-                        <button onclick="navigator.clipboard.writeText('{{ route('deliveries.show', $serviceRequest->delivery->secure_token) }}').then(() => alert('Lien copié !'))" class="w-full py-2 bg-white/10 rounded-xl text-xs font-bold hover:bg-white/20 transition">
-                            Copier le lien
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="navigator.clipboard.writeText('{{ route('deliveries.show', $serviceRequest->delivery->secure_token) }}').then(() => alert('Lien copié !'))" class="py-2 bg-white/10 rounded-xl text-xs font-bold hover:bg-white/20 transition">
+                            <i class="fas fa-copy mr-1"></i> Copier
                         </button>
+                        
                         <form action="{{ route('admin.deliveries.regenerate-token', $serviceRequest->delivery) }}" method="POST">
                             @csrf
                             <button type="submit" class="w-full py-2 bg-red-500/20 text-red-300 rounded-xl text-xs font-bold hover:bg-red-500/40 transition">
-                                Régénérer le lien (Invalide l'ancien)
+                                <i class="fas fa-sync mr-1"></i> Régénérer
                             </button>
                         </form>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <p class="text-[10px] font-black uppercase text-slate-500 tracking-widest">Partager le lien</p>
+                        <div class="flex gap-2">
+                            @php
+                                $deliveryLink = route('deliveries.show', $serviceRequest->delivery->secure_token);
+                                $shareText = "Bonjour " . $serviceRequest->client_name . ", votre commande est prête ! Vous pouvez la télécharger ici : " . $deliveryLink;
+                                
+                                $shareGmailUrl = "https://mail.google.com/mail/?view=cm&fs=1&to=" . urlencode($serviceRequest->client_email) . "&su=" . urlencode("Livraison de votre service : " . $serviceRequest->service_type) . "&body=" . urlencode($shareText);
+                                $shareWhatsappUrl = "https://wa.me/" . preg_replace('/[^0-9]/', '', $serviceRequest->client_phone) . "?text=" . urlencode($shareText);
+                            @endphp
+                            
+                            <a href="{{ $shareGmailUrl }}" target="_blank" onclick="logInteraction('email', 'Envoi du lien de livraison par Gmail')" class="flex-1 bg-red-500/20 text-red-300 py-3 rounded-xl text-center text-xs font-bold hover:bg-red-500/30 transition">
+                                <i class="fab fa-google mr-1"></i> Gmail
+                            </a>
+                            <a href="{{ $shareWhatsappUrl }}" target="_blank" onclick="logInteraction('whatsapp', 'Envoi du lien de livraison par WhatsApp')" class="flex-1 bg-green-500/20 text-green-300 py-3 rounded-xl text-center text-xs font-bold hover:bg-green-500/30 transition">
+                                <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                            </a>
+                        </div>
                     </div>
                 </div>
                 @endif
@@ -257,13 +279,14 @@
 
 @push('scripts')
 <script>
-function logInteraction(type) {
-    const content = type === 'email' ? 'Tentative de contact par Gmail' : 'Tentative de contact par WhatsApp';
+function logInteraction(type, customContent = null) {
+    const content = customContent || (type === 'email' ? 'Tentative de contact par Gmail' : 'Tentative de contact par WhatsApp');
     
     fetch('{{ route('admin.services.log-interaction', $serviceRequest) }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({

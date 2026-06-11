@@ -106,6 +106,24 @@
                     </div>
 
                     <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Spécialité / Titre</label>
+                        <input type="text" name="specialty" value="{{ old('specialty', Auth::guard('admin')->user()->specialty) }}" placeholder="Ex: Développeur Full-Stack"
+                               class="w-full bg-slate-50 border-transparent rounded-2xl px-6 py-4 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-700 shadow-sm">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Bio / Présentation</label>
+                        <textarea name="bio" rows="4" placeholder="Parlez-nous de vous..."
+                                  class="w-full bg-slate-50 border-transparent rounded-2xl px-6 py-4 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-700 shadow-sm">{{ old('bio', Auth::guard('admin')->user()->bio) }}</textarea>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Compétences (séparées par des virgules)</label>
+                        <input type="text" name="skills" value="{{ old('skills', Auth::guard('admin')->user()->skills ? implode(', ', Auth::guard('admin')->user()->skills) : '') }}" placeholder="Laravel, React, Design, ..."
+                               class="w-full bg-slate-50 border-transparent rounded-2xl px-6 py-4 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-bold text-slate-700 shadow-sm">
+                    </div>
+
+                    <div class="space-y-2">
                         <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Confirmation par mot de passe</label>
                         <input type="password" name="current_password" required placeholder="Tapez votre mot de passe actuel pour valider"
                                class="w-full bg-slate-50 border-transparent rounded-2xl px-6 py-4 focus:bg-white focus:ring-4 focus:ring-red-400/5 transition-all font-bold text-slate-700 shadow-sm">

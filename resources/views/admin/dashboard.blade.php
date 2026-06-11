@@ -31,6 +31,30 @@
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Revenue Card -->
+        <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-soft group hover:border-green-500 transition-colors cursor-pointer">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-14 h-14 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-green-500 group-hover:text-white transition-all">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Revenus</span>
+            </div>
+            <p class="text-3xl font-black text-slate-900 mb-1">{{ number_format($totalTurnover, 0, ',', ' ') }} <span class="text-sm">CFA</span></p>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-tighter">Chiffre d'Affaires</p>
+        </div>
+
+        <!-- Profit Card -->
+        <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-soft group hover:border-emerald-500 transition-colors cursor-pointer">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Profit</span>
+            </div>
+            <p class="text-3xl font-black text-slate-900 mb-1">{{ number_format($totalProfit, 0, ',', ' ') }} <span class="text-sm">CFA</span></p>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-tighter">Bénéfice Estimé</p>
+        </div>
+
         <!-- Sales Card -->
         <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-soft group hover:border-primary transition-colors cursor-pointer">
             <div class="flex justify-between items-start mb-6">
@@ -39,20 +63,8 @@
                 </div>
                 <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Ventes</span>
             </div>
-            <p class="text-4xl font-black text-slate-900 mb-1">{{ number_format($totalSales) }}</p>
-            <p class="text-xs text-slate-400 font-bold uppercase tracking-tighter">Commandes traitées</p>
-        </div>
-
-        <!-- Products Card -->
-        <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-soft group hover:border-secondary transition-colors cursor-pointer">
-            <div class="flex justify-between items-start mb-6">
-                <div class="w-14 h-14 bg-secondary/5 text-secondary rounded-2xl flex items-center justify-center text-2xl group-hover:bg-secondary group-hover:text-white transition-all">
-                    <i class="fas fa-box-open"></i>
-                </div>
-                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Catalogue</span>
-            </div>
-            <p class="text-4xl font-black text-slate-900 mb-1">{{ $publishedProducts }}</p>
-            <p class="text-xs text-slate-400 font-bold uppercase tracking-tighter">Produits en ligne</p>
+            <p class="text-4xl font-black text-slate-900 mb-1">{{ number_format($totalSalesCount) }}</p>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-tighter">Commandes payées</p>
         </div>
 
         <!-- Posts Card -->
@@ -65,18 +77,6 @@
             </div>
             <p class="text-4xl font-black text-slate-900 mb-1">{{ $publishedPosts }}</p>
             <p class="text-xs text-slate-400 font-bold uppercase tracking-tighter">Articles publiés</p>
-        </div>
-
-        <!-- Messages Card -->
-        <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-soft group hover:border-amber-500 transition-colors cursor-pointer">
-            <div class="flex justify-between items-start mb-6">
-                <div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-amber-500 group-hover:text-white transition-all">
-                    <i class="fas fa-comment-dots"></i>
-                </div>
-                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Interaction</span>
-            </div>
-            <p class="text-4xl font-black text-slate-900 mb-1">{{ $totalComments }}</p>
-            <p class="text-xs text-slate-400 font-bold uppercase tracking-tighter">Retours clients</p>
         </div>
     </div>
 

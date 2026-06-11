@@ -14,9 +14,9 @@ class ProductFactory extends Factory
     {
         return [
             'admin_id' => Admin::factory(),
-            'title' => $this->faker->sentence(),
+            'title' => $this->faker->realText(30),
             'slug' => $this->faker->unique()->slug(),
-            'description' => $this->faker->paragraph(),
+            'description' => $this->faker->realText(500),
             'price' => $this->faker->randomFloat(2, 10, 1000),
             'published' => true,
         ];
