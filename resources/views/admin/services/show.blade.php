@@ -298,4 +298,3 @@ function logInteraction(type, customContent = null) {
 </script>
 @endpush
 @endsection
-ndsection
