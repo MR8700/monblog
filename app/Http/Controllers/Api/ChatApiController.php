@@ -48,7 +48,7 @@ class ChatApiController extends Controller
                 $path = $file->store('chat', 'public');
                 $message->attachments()->create([
                     'path' => '/storage/' . $path,
-                    'original_name' => $file->getClientOriginalName(),
+                    'original_name' => basename($file->getClientOriginalName()),
                     'mime' => $file->getClientMimeType(),
                     'size' => $file->getSize(),
                 ]);

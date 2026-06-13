@@ -16,9 +16,17 @@ class StoreChatMessageRequest extends FormRequest
         return [
             'body' => 'nullable|string|max:3000',
             'attachments' => 'nullable|array|max:5',
-            'attachments.*' => 'file|max:10240|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif,txt',
-            'name' => 'nullable|string|max:255', // Nom du visiteur si pas admin
+            'attachments.*' => 'file|max:5120|mimes:pdf,jpg,jpeg,png,webp,txt',
+            'name' => 'nullable|string|max:120',
+            'room' => 'nullable|string|max:120',
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'name' => $this->filled('name') ? strip_tags($this->input('name')) : null,
+        ]);
     }
 
     public function messages(): array

@@ -15,7 +15,7 @@ class PostApiController extends Controller
      */
     public function index(): JsonResponse
     {
-        $posts = Post::where('published', true)
+        $posts = Post::published()
             ->with(['admin', 'comments', 'reactions', 'views'])
             ->orderByDesc('published_at')
             ->paginate(15);
@@ -28,7 +28,7 @@ class PostApiController extends Controller
      */
     public function show(Post $post): JsonResponse
     {
-        if (!$post->published) {
+        if (!$post->is_published) {
             abort(404);
         }
 

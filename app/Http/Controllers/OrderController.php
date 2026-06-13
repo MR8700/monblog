@@ -106,7 +106,7 @@ class OrderController extends Controller
             ]);
         }
 
-        return redirect()->route('orders.payment.select', $order);
+        return redirect()->route('orders.payment.select', ['order' => $order->publicRouteParameter()]);
     }
 
     /**
@@ -115,7 +115,7 @@ class OrderController extends Controller
     public function selectPaymentMethod(Order $order)
     {
         if ($order->payment_status === Order::STATUS_PAID) {
-            return redirect()->route('orders.confirmation', $order);
+            return redirect()->route('orders.confirmation', ['order' => $order->publicRouteParameter()]);
         }
 
         return view('orders.payment_select', compact('order'));
@@ -131,7 +131,7 @@ class OrderController extends Controller
         $method = $request->payment_method;
 
         if ($method === 'ligdicash') {
-            return redirect()->route('payments.ligdicash.initiate', $order);
+            return redirect()->route('payments.ligdicash.initiate', ['order' => $order->publicRouteParameter()]);
         }
 
         $order->update(['payment_method' => $method]);
@@ -144,7 +144,7 @@ class OrderController extends Controller
             return view('orders.payment_om', compact('order', 'result'));
         }
 
-        return redirect($result['redirect_url']);
+        return redirect()->away($result['redirect_url']);
     }
 
     /**
@@ -163,7 +163,7 @@ class OrderController extends Controller
                 \Illuminate\Support\Facades\Log::error("Erreur d'envoi d'email : " . $e->getMessage());
             }
 
-            return redirect()->route('orders.confirmation', $order)->with('success', 'Paiement réussi !');
+            return redirect()->route('orders.confirmation', ['order' => $order->publicRouteParameter()])->with('success', 'Paiement réussi !');
         }
 
         return back()->with('error', 'Le paiement a échoué. Veuillez réessayer.');

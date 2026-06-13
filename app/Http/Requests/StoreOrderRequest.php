@@ -34,4 +34,12 @@ class StoreOrderRequest extends FormRequest
             'products.required' => 'Veuillez sélectionner au moins un produit.',
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'user_name' => $this->filled('user_name') ? strip_tags($this->input('user_name')) : null,
+            'user_phone' => $this->filled('user_phone') ? strip_tags($this->input('user_phone')) : null,
+        ]);
+    }
 }

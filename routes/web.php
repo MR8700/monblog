@@ -43,7 +43,7 @@ Route::post('/chat/messages', [ChatController::class, 'store'])->middleware('thr
 
 // Page contact
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
-Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+Route::post('/contact', [ContactController::class, 'send'])->middleware('throttle:5,1')->name('contact.send');
 
 // Pages Légales
 Route::view('/confidentialite', 'public.privacy')->name('privacy');
@@ -52,19 +52,19 @@ Route::get('/a-propos', [\App\Http\Controllers\AboutController::class, 'index'])
 
 // Commandes (e-commerce)
 Route::post('/orders', [OrderController::class, 'store'])->middleware('throttle:10,1')->name('orders.store');
-Route::get('/orders/{order}/payment/select', [OrderController::class, 'selectPaymentMethod'])->name('orders.payment.select');
-Route::post('/orders/{order}/payment/initiate', [OrderController::class, 'initiatePayment'])->name('orders.payment.initiate');
-Route::get('/orders/{order}/payment/visa', [OrderController::class, 'showVisaForm'])->name('orders.payment.visa');
-Route::post('/orders/{order}/payment/process', [OrderController::class, 'processPayment'])->name('orders.payment.process');
-Route::get('/orders/{order}/confirmation', [OrderController::class, 'confirmation'])->name('orders.confirmation');
-Route::get('/orders/{order}/download/{product}', [OrderController::class, 'download'])->middleware('signed')->name('orders.download');
+Route::get('/orders/{order:public_token}/payment/select', [OrderController::class, 'selectPaymentMethod'])->middleware('throttle:30,1')->name('orders.payment.select');
+Route::post('/orders/{order:public_token}/payment/initiate', [OrderController::class, 'initiatePayment'])->middleware('throttle:10,1')->name('orders.payment.initiate');
+Route::get('/orders/{order:public_token}/payment/visa', [OrderController::class, 'showVisaForm'])->middleware('throttle:30,1')->name('orders.payment.visa');
+Route::post('/orders/{order:public_token}/payment/process', [OrderController::class, 'processPayment'])->middleware('throttle:8,1')->name('orders.payment.process');
+Route::get('/orders/{order:public_token}/confirmation', [OrderController::class, 'confirmation'])->middleware('throttle:30,1')->name('orders.confirmation');
+Route::get('/orders/{order:public_token}/download/{product}', [OrderController::class, 'download'])->middleware('signed')->name('orders.download');
 
 // LigdiCash Routes
 Route::prefix('payments/ligdicash')->name('payments.ligdicash.')->group(function() {
-    Route::get('/initiate/{order}', [App\Http\Controllers\LigdiCashController::class, 'initiate'])->name('initiate');
-    Route::get('/success/{order}', [App\Http\Controllers\LigdiCashController::class, 'success'])->name('success');
-    Route::get('/cancel/{order}', [App\Http\Controllers\LigdiCashController::class, 'cancel'])->name('cancel');
-    Route::get('/status/{order}', [App\Http\Controllers\LigdiCashController::class, 'checkStatus'])->name('status');
+    Route::get('/initiate/{order:public_token}', [App\Http\Controllers\LigdiCashController::class, 'initiate'])->middleware('throttle:10,1')->name('initiate');
+    Route::get('/success/{order:public_token}', [App\Http\Controllers\LigdiCashController::class, 'success'])->middleware('throttle:30,1')->name('success');
+    Route::get('/cancel/{order:public_token}', [App\Http\Controllers\LigdiCashController::class, 'cancel'])->middleware('throttle:30,1')->name('cancel');
+    Route::get('/status/{order:public_token}', [App\Http\Controllers\LigdiCashController::class, 'checkStatus'])->middleware('throttle:30,1')->name('status');
 });
 
 
@@ -139,6 +139,7 @@ Route::prefix('admin')->middleware('auth.admin')->name('admin.')->group(function
     Route::post('services/types/{serviceType}/toggle', [\App\Http\Controllers\AdminServiceRequestController::class, 'toggleType'])->name('services.types.toggle');
     Route::delete('services/types/{serviceType}', [\App\Http\Controllers\AdminServiceRequestController::class, 'destroyType'])->name('services.types.destroy');
     Route::get('services/{serviceRequest}', [\App\Http\Controllers\AdminServiceRequestController::class, 'show'])->name('services.show');
+    Route::get('services/attachments/{attachment}/download', [\App\Http\Controllers\AdminServiceRequestController::class, 'downloadAttachment'])->name('services.attachments.download');
     Route::put('services/{serviceRequest}/status', [\App\Http\Controllers\AdminServiceRequestController::class, 'updateStatus'])->name('services.update-status');
     Route::post('services/{serviceRequest}/log-interaction', [\App\Http\Controllers\AdminServiceRequestController::class, 'logInteraction'])->name('services.log-interaction');
     Route::post('services/{serviceRequest}/delivery', [\App\Http\Controllers\AdminServiceRequestController::class, 'createDelivery'])->name('services.create-delivery');
@@ -147,13 +148,13 @@ Route::prefix('admin')->middleware('auth.admin')->name('admin.')->group(function
 
 // Routes publiques pour les services
 Route::get('/demande-service', [\App\Http\Controllers\ServiceRequestController::class, 'create'])->name('services.request');
-Route::post('/demande-service', [\App\Http\Controllers\ServiceRequestController::class, 'store'])->name('services.request.store');
+Route::post('/demande-service', [\App\Http\Controllers\ServiceRequestController::class, 'store'])->middleware('throttle:3,1')->name('services.request.store');
 
 // Espace de livraison sécurisé
 Route::get('/deliveries/gallery', [\App\Http\Controllers\DeliveryController::class, 'gallery'])->name('deliveries.gallery');
 Route::get('/delivery/{token}', [\App\Http\Controllers\DeliveryController::class, 'show'])->name('deliveries.show');
-Route::post('/delivery/{token}/comment', [\App\Http\Controllers\DeliveryController::class, 'storeComment'])->name('deliveries.comment');
+Route::post('/delivery/{token}/comment', [\App\Http\Controllers\DeliveryController::class, 'storeComment'])->middleware('throttle:10,1')->name('deliveries.comment');
 Route::get('/delivery/{token}/download', [\App\Http\Controllers\DeliveryController::class, 'download'])->name('deliveries.download');
 Route::get('/delivery/{token}/invoice', [\App\Http\Controllers\DeliveryController::class, 'invoice'])->name('deliveries.invoice');
-Route::post('/delivery/{token}/pay', [\App\Http\Controllers\DeliveryController::class, 'processPayment'])->name('deliveries.pay');
-Route::post('/delivery/{token}/react', [\App\Http\Controllers\DeliveryController::class, 'toggleReaction'])->name('deliveries.react');
+Route::post('/delivery/{token}/pay', [\App\Http\Controllers\DeliveryController::class, 'processPayment'])->middleware('throttle:5,1')->name('deliveries.pay');
+Route::post('/delivery/{token}/react', [\App\Http\Controllers\DeliveryController::class, 'toggleReaction'])->middleware('throttle:20,1')->name('deliveries.react');

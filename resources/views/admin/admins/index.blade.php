@@ -121,6 +121,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
         
         <div class="mt-4">

@@ -121,7 +121,9 @@ class DeliveryController extends Controller
             abort(403, 'Le paiement est requis pour télécharger ce produit.');
         }
 
-        return Storage::disk('public')->download($delivery->file_path, $delivery->title . '.' . pathinfo($delivery->file_path, PATHINFO_EXTENSION));
+        abort_unless(Storage::disk('private')->exists($delivery->file_path), 404);
+
+        return Storage::disk('private')->download($delivery->file_path, $delivery->title . '.' . pathinfo($delivery->file_path, PATHINFO_EXTENSION));
     }
 
     /**

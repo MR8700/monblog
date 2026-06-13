@@ -94,11 +94,7 @@
                     @forelse($serviceRequest->attachments as $attachment)
                         <div class="group relative bg-slate-50 rounded-2xl p-4 border border-slate-100 hover:border-primary/30 transition-all">
                             <div class="aspect-square bg-white rounded-xl mb-3 flex items-center justify-center overflow-hidden">
-                                @if(str_contains($attachment->mime_type, 'image'))
-                                    <img src="{{ Storage::url($attachment->file_path) }}" class="w-full h-full object-cover">
-                                @else
-                                    <i class="fas fa-file-alt text-3xl text-slate-300"></i>
-                                @endif
+                                <i class="fas {{ str_contains($attachment->mime_type, 'image') ? 'fa-image' : 'fa-file-alt' }} text-3xl text-slate-300"></i>
                             </div>
                             <p class="text-xs font-bold text-slate-700 truncate mb-1">{{ $attachment->file_name }}</p>
                             <a href="{{ Storage::url($attachment->file_path) }}" target="_blank" class="text-[10px] font-black uppercase text-primary hover:underline">Télécharger</a>
@@ -234,7 +230,7 @@
 </section>
 
 <!-- Modal de Livraison -->
-<div x-data="{ showDeliveryModal: false }" x-show="showDeliveryModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+<div x-show="showDeliveryModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
     <div class="flex items-center justify-center min-h-screen px-4">
         <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showDeliveryModal = false"></div>
         <div class="relative bg-white rounded-[3rem] max-w-2xl w-full p-10 shadow-2xl overflow-hidden">
@@ -292,6 +288,13 @@ function logInteraction(type, customContent = null) {
         body: JSON.stringify({
             type: type,
             content: content
+        })
+    });
+}
+</script>
+@endpush
+@endsection
+       content: content
         })
     });
 }

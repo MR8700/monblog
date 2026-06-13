@@ -179,7 +179,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price'       => 'nullable|numeric',
             'image'       => 'nullable|image|max:2048',
-            'file'        => 'nullable|file|max:20480', // 20MB max
+            'file'        => 'nullable|file|max:20480|mimes:pdf,zip,jpg,jpeg,png,webp,txt',
             'is_downloadable' => 'nullable|boolean',
             'whatsapp'    => 'nullable|string',
             'facebook'    => 'nullable|url',

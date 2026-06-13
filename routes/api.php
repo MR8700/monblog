@@ -21,15 +21,15 @@ Route::prefix('v1')->group(function () {
     Route::get('/products', [ProductApiController::class, 'index']);
     Route::get('/products/{product}', [ProductApiController::class, 'show']);
     Route::get('/portfolio', [PortfolioApiController::class, 'index']);
-    Route::post('/orders', [OrderApiController::class, 'store']);
-    Route::get('/orders/{order}/confirmation', [OrderApiController::class, 'confirmation']);
+    Route::post('/orders', [OrderApiController::class, 'store'])->middleware('throttle:10,1');
+    Route::get('/orders/{order:public_token}/confirmation', [OrderApiController::class, 'confirmation'])->middleware('throttle:30,1');
     
     // Chat messages (public)
     Route::get('/chat/messages', [ChatApiController::class, 'index']);
     Route::post('/chat/messages', [ChatApiController::class, 'store'])->middleware('throttle:20,1');
 
     // LigdiCash Callback
-    Route::post('/payments/ligdicash/callback', [App\Http\Controllers\LigdiCashController::class, 'callback'])->name('api.payments.ligdicash.callback');
+    Route::post('/payments/ligdicash/callback', [App\Http\Controllers\LigdiCashController::class, 'callback'])->middleware('throttle:60,1')->name('api.payments.ligdicash.callback');
 
     // Admin protected endpoints
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {

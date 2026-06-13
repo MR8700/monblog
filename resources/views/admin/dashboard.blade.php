@@ -5,24 +5,24 @@
 @section('content')
 <section class="max-w-7xl mx-auto px-6 py-12 space-y-12">
     <!-- Welcome Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-white p-10 rounded-[3rem] border border-slate-100 shadow-soft">
-        <div class="flex items-center gap-6">
-            <div class="w-24 h-24 rounded-[2rem] overflow-hidden shadow-2xl shadow-primary/20 border-4 border-white flex-none">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-slate-100 shadow-soft">
+        <div class="flex items-center gap-4 md:gap-6">
+            <div class="w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl shadow-primary/20 border-4 border-white flex-none">
                 @if(Auth::guard('admin')->user()->profile_picture)
                     <img src="{{ asset('storage/' . Auth::guard('admin')->user()->profile_picture) }}" class="w-full h-full object-cover">
                 @else
-                    <div class="w-full h-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white text-4xl font-black">
+                    <div class="w-full h-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white text-2xl md:text-4xl font-black">
                         {{ strtoupper(substr(Auth::guard('admin')->user()->name, 0, 1)) }}
                     </div>
                 @endif
             </div>
             <div class="space-y-1">
-                <h1 class="text-4xl font-bold text-slate-900 tracking-tight">Bonjour, <span class="text-primary italic font-display">{{ Auth::guard('admin')->user()->name }}</span> !</h1>
-                <p class="text-slate-500 font-medium">Ravi de vous revoir. Voici l'état de votre espace digital aujourd'hui.</p>
+                <h1 class="text-2xl md:text-4xl font-bold text-slate-900 tracking-tight">Bonjour, <span class="text-primary italic font-display">{{ Auth::guard('admin')->user()->name }}</span> !</h1>
+                <p class="text-xs md:text-sm text-slate-500 font-medium">Ravi de vous revoir. Voici l'état de votre espace digital.</p>
             </div>
         </div>
         <div class="flex gap-4">
-            <a href="{{ route('admin.profile.edit') }}" class="px-8 py-4 bg-slate-900 text-white rounded-[2rem] font-bold shadow-xl shadow-slate-900/10 hover:bg-primary transition-all flex items-center gap-2 group">
+            <a href="{{ route('admin.profile.edit') }}" class="w-full md:w-auto px-6 py-3 md:px-8 md:py-4 bg-slate-900 text-white rounded-2xl md:rounded-[2rem] font-bold shadow-xl shadow-slate-900/10 hover:bg-primary transition-all flex items-center justify-center gap-2 group">
                 <i class="fas fa-user-circle text-slate-400 group-hover:text-white transition-colors"></i>
                 <span>Mon Profil</span>
             </a>
@@ -181,6 +181,15 @@
                             </div>
                             <h3 class="font-bold text-slate-900 mb-2 group-hover:text-secondary transition-colors">{{ $product->title }}</h3>
                             <p class="text-2xl font-black text-primary">{{ number_format($product->price, 0, ',', ' ') }} <span class="text-[10px]">CFA</span></p>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@endsection
+number_format($product->price, 0, ',', ' ') }} <span class="text-[10px]">CFA</span></p>
                         </div>
                     @endforeach
                 </div>

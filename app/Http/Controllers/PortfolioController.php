@@ -14,7 +14,7 @@ class PortfolioController extends Controller
 
         $items = PortfolioItem::orderBy('sort_order')
             ->orderByDesc('started_at')
-            ->get();
+            ->paginate(12);
 
         return view('portfolio.index', compact('featured', 'items'));
     }

@@ -8,7 +8,7 @@
         <h1 class="text-3xl font-heading text-center">Règlement de votre commande</h1>
         <p class="text-center text-slate-600">Total à payer : <span class="text-2xl font-bold text-primary">{{ number_format($order->total_price, 0, ',', ' ') }} FCFA</span></p>
 
-        <form id="payment-form" action="{{ route('orders.payment.initiate', $order) }}" method="POST" class="space-y-4">
+        <form id="payment-form" action="{{ route('orders.payment.initiate', ['order' => $order->publicRouteParameter()]) }}" method="POST" class="space-y-4">
             @csrf
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <label class="relative flex flex-col items-center gap-4 p-6 border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-primary transition-all">

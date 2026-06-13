@@ -16,7 +16,7 @@
 
         <p class="text-center font-bold">Montant : {{ number_format($order->total_price, 0, ',', ' ') }} FCFA</p>
 
-        <form action="{{ route('orders.payment.process', $order) }}" method="POST" class="space-y-4">
+        <form action="{{ route('orders.payment.process', ['order' => $order->publicRouteParameter()]) }}" method="POST" class="space-y-4">
             @csrf
             <input type="hidden" name="transaction_id" value="{{ $result['transaction_id'] }}">
             

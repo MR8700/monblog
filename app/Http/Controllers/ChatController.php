@@ -81,13 +81,15 @@ class ChatController extends Controller
     {
         $data = $request->validate([
             'body' => 'nullable|string|max:3000',
-            'attachments.*' => 'nullable|file|max:10240',
-            'room' => 'nullable|string',
+            'attachments' => 'nullable|array|max:5',
+            'attachments.*' => 'nullable|file|max:5120|mimes:pdf,jpg,jpeg,png,webp,txt',
+            'room' => 'nullable|string|max:120',
+            'name' => 'nullable|string|max:120',
         ]);
 
         $isAdmin = Auth::guard('admin')->check();
         $room = $isAdmin ? ($request->input('room') ?: 'global') : $this->getChatToken();
-        $authorName = $isAdmin ? Auth::guard('admin')->user()->name : ($request->input('name') ?: 'Client');
+        $authorName = $isAdmin ? Auth::guard('admin')->user()->name : strip_tags($request->input('name') ?: 'Client');
 
         if (empty($data['body']) && ! $request->hasFile('attachments')) {
             return back()->withErrors(['body' => 'Message vide']);
@@ -106,7 +108,7 @@ class ChatController extends Controller
                 $path = $file->store('chat', 'public');
                 $message->attachments()->create([
                     'path' => '/storage/' . $path,
-                    'original_name' => $file->getClientOriginalName(),
+                    'original_name' => basename($file->getClientOriginalName()),
                     'mime' => $file->getClientMimeType(),
                     'size' => $file->getSize(),
                 ]);

@@ -65,15 +65,16 @@
 
   <!-- Orders Table -->
   <div class="glass rounded-3xl overflow-hidden">
+    <div class="overflow-x-auto">
     <table class="w-full text-left text-sm">
       <thead class="bg-slate-50 border-b border-slate-200">
         <tr>
           <th class="px-6 py-4 font-semibold">ID / Client</th>
-          <th class="px-6 py-4 font-semibold">Articles</th>
-          <th class="px-6 py-4 font-semibold">Total</th>
-          <th class="px-6 py-4 font-semibold">Statut</th>
+          <th class="px-6 py-4 font-semibold text-center">Articles</th>
+          <th class="px-6 py-4 font-semibold text-center">Total</th>
+          <th class="px-6 py-4 font-semibold text-center">Statut</th>
           <th class="px-6 py-4 font-semibold">Date</th>
-          <th class="px-6 py-4 font-semibold">Actions</th>
+          <th class="px-6 py-4 font-semibold text-right">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -86,14 +87,14 @@
                 <p class="text-xs text-slate-500">{{ $order->user_email }}</p>
               </div>
             </td>
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 text-center">
               <p class="font-medium">{{ $order->items_count ?? $order->items->count() }} article(s)</p>
               <p class="text-xs text-slate-600">{{ $order->total_amount ?? $order->items->sum('quantity') }} unité(s)</p>
             </td>
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 text-center">
               <p class="font-semibold text-lg">{{ number_format($order->total_price, 0, ',', ' ') }} CFA</p>
             </td>
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 text-center">
               <span class="px-3 py-1 text-xs font-semibold rounded-full
                 {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-700' : '' }}
                 {{ $order->status === 'confirmed' ? 'bg-blue-100 text-blue-700' : '' }}
@@ -107,7 +108,7 @@
             <td class="px-6 py-4 text-xs text-slate-600">
               {{ $order->created_at->format('d/m/Y H:i') }}
             </td>
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 text-right">
               <a 
                 href="{{ route('admin.orders.show', $order) }}"
                 class="text-primary hover:text-primary-dark font-semibold transition inline-flex items-center gap-1"
@@ -126,6 +127,7 @@
         @endforelse
       </tbody>
     </table>
+    </div>
   </div>
 
   <!-- Pagination -->

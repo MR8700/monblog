@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ServiceRequest;
+use App\Models\ServiceRequestAttachment;
 use App\Models\Delivery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Models\ServiceType;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class AdminServiceRequestController extends Controller
 {
@@ -52,6 +54,13 @@ class AdminServiceRequestController extends Controller
         return view('admin.services.show', compact('serviceRequest'));
     }
 
+    public function downloadAttachment(ServiceRequestAttachment $attachment)
+    {
+        abort_unless(Storage::disk('private')->exists($attachment->file_path), 404);
+
+        return Storage::disk('private')->download($attachment->file_path, $attachment->file_name);
+    }
+
     public function updateStatus(Request $request, ServiceRequest $serviceRequest)
     {
         $validated = $request->validate([
@@ -59,6 +68,10 @@ class AdminServiceRequestController extends Controller
             'price' => 'nullable|numeric',
             'admin_notes' => 'nullable|string',
         ]);
+
+        if ($validated['status'] === 'delivered' && !$serviceRequest->delivery) {
+            return back()->with('error', 'Vous ne pouvez pas marquer cette demande comme livrée sans avoir créé de livraison (bouton "Livrer le produit").');
+        }
 
         $oldStatus = $serviceRequest->status;
         $serviceRequest->update($validated);
@@ -107,13 +120,13 @@ class AdminServiceRequestController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'file' => 'required|file|max:51200', // 50MB
+            'file' => 'required|file|max:51200|mimes:pdf,zip,jpg,jpeg,png,webp,mp4,webm',
             'preview' => 'nullable|image|max:10240',
             'price' => 'required|numeric',
             'is_public' => 'boolean',
         ]);
 
-        $filePath = $request->file('file')->store('deliveries/files', 'public');
+        $filePath = $request->file('file')->store('deliveries/files', 'private');
         $previewPath = $request->hasFile('preview') ? $request->file('preview')->store('deliveries/previews', 'public') : null;
 
         $delivery = Delivery::create([
@@ -126,7 +139,10 @@ class AdminServiceRequestController extends Controller
             'is_public' => $request->has('is_public'),
         ]);
 
-        $serviceRequest->update(['status' => 'delivered']);
+        $serviceRequest->update([
+            'status' => 'delivered',
+            'price' => $validated['price']
+        ]);
 
         return back()->with('success', 'Produit livré sur l\'espace sécurisé. Lien généré.');
     }

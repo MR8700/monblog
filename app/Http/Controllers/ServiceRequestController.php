@@ -22,17 +22,18 @@ class ServiceRequestController extends Controller
             'client_email' => 'required|email|max:255',
             'client_phone' => 'required|string|max:255',
             'service_type' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'required|string|max:10000',
             'custom_fields' => 'nullable|array',
-            'attachments.*' => 'nullable|file|max:20480', // 20MB max
+            'attachments' => 'nullable|array|max:5',
+            'attachments.*' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,webp,txt',
         ]);
 
         try {
             $serviceRequest = ServiceRequest::create([
-                'client_name' => $validated['client_name'],
+                'client_name' => strip_tags($validated['client_name']),
                 'client_email' => $validated['client_email'],
-                'client_phone' => $validated['client_phone'],
-                'service_type' => $validated['service_type'],
+                'client_phone' => strip_tags($validated['client_phone']),
+                'service_type' => strip_tags($validated['service_type']),
                 'description' => $validated['description'],
                 'custom_fields' => $request->input('custom_fields'),
                 'status' => 'pending',
@@ -41,10 +42,10 @@ class ServiceRequestController extends Controller
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
                     if ($file->isValid()) {
-                        $path = $file->store('service-requests', 'public');
+                        $path = $file->store('service-requests', 'private');
                         $serviceRequest->attachments()->create([
                             'file_path' => $path,
-                            'file_name' => $file->getClientOriginalName(),
+                            'file_name' => basename($file->getClientOriginalName()),
                             'mime_type' => $file->getClientMimeType(),
                         ]);
                     }

@@ -105,11 +105,18 @@ class AdminManagementController extends Controller
             return back()->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }
 
+        if ($admin->isSuperAdmin() && Admin::where('role', 'super_admin')->count() <= 1) {
+            return back()->with('error', 'Vous ne pouvez pas supprimer le dernier super-administrateur.');
+        }
+
         if ($admin->profile_picture && Storage::exists($admin->profile_picture)) {
             Storage::delete($admin->profile_picture);
         }
 
         $admin->delete();
         return redirect()->route('admin.admins.index')->with('success', 'Administrateur supprimé.');
+    }
+}
+  return redirect()->route('admin.admins.index')->with('success', 'Administrateur supprimé.');
     }
 }

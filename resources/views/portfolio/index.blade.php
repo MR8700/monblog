@@ -110,6 +110,10 @@
             <p class="text-slate-400 italic">D'autres projets arriveront bientôt.</p>
           @endforelse
         </div>
+        
+        <div class="mt-12">
+            {{ $items->links() }}
+        </div>
       </div>
     </div>
   </div>

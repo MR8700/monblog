@@ -34,7 +34,7 @@ class LigdiCashService
                     'customer' => $order->user_email,
                     'customer_firstname' => $order->user_name,
                     'customer_lastname' => '',
-                    'external_id' => (string) $order->id,
+                    'external_id' => $order->publicRouteParameter(),
                     'otp' => ''
                 ],
                 'store' => [
@@ -42,24 +42,32 @@ class LigdiCashService
                     'website_url' => config('app.url')
                 ],
                 'actions' => [
-                    'cancel_url' => route('payments.ligdicash.cancel', ['order' => $order->id]),
-                    'return_url' => route('payments.ligdicash.success', ['order' => $order->id]),
+                    'cancel_url' => route('payments.ligdicash.cancel', ['order' => $order->publicRouteParameter()]),
+                    'return_url' => route('payments.ligdicash.success', ['order' => $order->publicRouteParameter()]),
                     'callback_url' => config('services.ligdicash.callback_url')
                 ],
                 'custom_data' => [
-                    'order_id' => $order->id
+                    'order_token' => $order->publicRouteParameter()
                 ]
             ]
         ];
 
-        Log::info('LigdiCash: Creating invoice for Order #' . $order->id, ['payload' => $payload]);
+        Log::info('LigdiCash: Creating invoice', [
+            'order_id' => $order->id,
+            'amount' => (int) $order->total_price,
+        ]);
 
         $response = Http::withHeaders($this->getHeaders())
             ->post($this->baseUrl . '/pay/v01/redirect/checkout-invoice/create', $payload);
 
         if ($response->successful()) {
             $data = $response->json();
-            Log::info('LigdiCash: Invoice created successfully', ['response' => $data]);
+            $data['token'] = $data['token'] ?? $this->extractTokenFromRedirectUrl($data['response_text'] ?? null);
+
+            Log::info('LigdiCash: Invoice created successfully', [
+                'order_id' => $order->id,
+                'has_token' => filled($data['token'] ?? null),
+            ]);
             return $data;
         }
 
@@ -85,7 +93,7 @@ class LigdiCashService
         }
 
         Log::error('LigdiCash: Payment confirmation failed', [
-            'token' => $token,
+            'token_hash' => hash('sha256', $token),
             'status' => $response->status(),
             'body' => $response->body()
         ]);
@@ -114,6 +122,8 @@ class LigdiCashService
 
     protected function formatOrderItems(Order $order): array
     {
+        $order->loadMissing(['items.product', 'items.post']);
+
         $items = [];
         foreach ($order->items as $item) {
             $items[] = [
@@ -125,5 +135,23 @@ class LigdiCashService
             ];
         }
         return $items;
+    }
+
+    private function extractTokenFromRedirectUrl(?string $redirectUrl): ?string
+    {
+        if (!$redirectUrl) {
+            return null;
+        }
+
+        $query = parse_url($redirectUrl, PHP_URL_QUERY);
+        if (!$query) {
+            return null;
+        }
+
+        parse_str($query, $parameters);
+
+        return isset($parameters['token']) && is_string($parameters['token'])
+            ? $parameters['token']
+            : null;
     }
 }

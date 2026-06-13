@@ -17,19 +17,19 @@
         <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Disponible pour de nouveaux projets</span>
       </div>
 
-      <h1 class="text-5xl md:text-7xl font-bold leading-[1.1] text-slate-900">
+      <h1 class="text-4xl md:text-7xl font-bold leading-[1.1] text-slate-900">
         Solutions <span class="text-primary italic font-display">Numériques</span> de Haute Qualité.
       </h1>
       
-      <p class="text-xl text-slate-500 leading-relaxed max-w-xl">
+      <p class="text-lg md:text-xl text-slate-500 leading-relaxed max-w-xl">
         Découvrez mes créations, apprenez via mon blog premium et collaborez avec moi en direct pour propulser votre business.
       </p>
 
       <div class="flex flex-wrap gap-4 pt-4">
-        <a href="{{ route('products.publicIndex') }}" class="px-8 py-4 bg-primary text-white rounded-full font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-transform flex items-center gap-3">
+        <a href="{{ route('products.publicIndex') }}" class="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-full font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-transform flex items-center justify-center gap-3">
           <i class="fas fa-shopping-cart"></i> Voir mes produits
         </a>
-        <a href="{{ route('portfolio.index') }}" class="px-8 py-4 bg-white text-slate-900 rounded-full font-bold shadow-soft border border-slate-100 hover:bg-slate-50 transition-colors flex items-center gap-3">
+        <a href="{{ route('portfolio.index') }}" class="w-full sm:w-auto px-8 py-4 bg-white text-slate-900 rounded-full font-bold shadow-soft border border-slate-100 hover:bg-slate-50 transition-colors flex items-center justify-center gap-3">
           <i class="fas fa-layer-group"></i> Portfolio
         </a>
       </div>

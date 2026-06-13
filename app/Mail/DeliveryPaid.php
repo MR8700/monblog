@@ -54,7 +54,7 @@ class DeliveryPaid extends Mailable
     public function attachments(): array
     {
         return [
-            Attachment::fromPath(storage_path('app/public/' . $this->delivery->file_path))
+            Attachment::fromPath(Storage::disk('private')->path($this->delivery->file_path))
                 ->as($this->delivery->title . '.' . pathinfo($this->delivery->file_path, PATHINFO_EXTENSION)),
         ];
     }

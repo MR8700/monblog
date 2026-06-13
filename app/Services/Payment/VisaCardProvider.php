@@ -10,7 +10,7 @@ class VisaCardProvider implements PaymentProviderInterface
     {
         return [
             'status' => 'redirect',
-            'redirect_url' => route('orders.payment.visa', $order),
+            'redirect_url' => route('orders.payment.visa', ['order' => $order->publicRouteParameter()]),
             'transaction_id' => 'VISA-' . uniqid(),
         ];
     }

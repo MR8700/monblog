@@ -28,7 +28,7 @@
             </div>
 
             <div id="action-buttons" class="hidden">
-                <a href="{{ route('orders.confirmation', $order) }}" 
+                <a href="{{ route('orders.confirmation', ['order' => $order->publicRouteParameter()]) }}" 
                    class="inline-block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
                     Voir ma commande
                 </a>
@@ -40,7 +40,7 @@
 @push('scripts')
 <script>
     const orderId = "{{ $order->id }}";
-    const statusUrl = "{{ route('payments.ligdicash.status', $order) }}";
+    const statusUrl = "{{ route('payments.ligdicash.status', ['order' => $order->publicRouteParameter()]) }}";
     let attempts = 0;
     const maxAttempts = 30; // 30 tentatives (env 1 minute)
 
@@ -80,7 +80,7 @@
         document.getElementById('action-buttons').classList.remove('hidden');
         
         setTimeout(() => {
-            window.location.href = "{{ route('orders.confirmation', $order) }}";
+            window.location.href = "{{ route('orders.confirmation', ['order' => $order->publicRouteParameter()]) }}";
         }, 3000);
     }
 
@@ -96,7 +96,7 @@
         document.getElementById('status-title').classList.add('text-red-600');
         document.getElementById('status-message').innerText = message;
         document.getElementById('action-buttons').innerHTML = `
-            <a href="{{ route('orders.payment.select', $order) }}" 
+            <a href="{{ route('orders.payment.select', ['order' => $order->publicRouteParameter()]) }}" 
                class="inline-block w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
                 Réessayer le paiement
             </a>
